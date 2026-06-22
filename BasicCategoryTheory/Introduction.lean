@@ -231,9 +231,25 @@ theorem exercise_0_10 (S : Type*) (X : Type*) [TopologicalSpace X] :
     ∀ (f : X → S), ∃! (g : C(X, S)), (g : X → S) = f :=
   fun f => ⟨@ContinuousMap.mk X S ‹_› ⊤ f continuous_top, rfl, by exact fun g hg => hg ▸ rfl⟩
 
-theorem exercise_0_11 : false := by sorry
+theorem example_0_11 {G H : Type*} [Group G] [Group H] (θ : G →* H) :
+    let ι : θ.ker →* G := θ.ker.subtype
+    let ε : G →* H := 1
+    (∀ x : θ.ker, θ (ι x) = ε (ι x)) ∧
+    ∀ (X : Type*) [Group X] (f : X →* G),
+      (∀ x, θ (f x) = ε (f x)) →
+      ∃! f' : X →* θ.ker, ∀ x, ι (f' x) = f x := example_0_8 θ
 
-theorem exercise_0_12 : false := by sorry
+open Classical in
+theorem example_0_12 {X : Type*} [TopologicalSpace X] (U V : Set X)
+    (hU : IsOpen U) (hV : IsOpen V) (h_cov : U ∪ V = Set.univ) :
+    let i := inclusionMap (@Set.inter_subset_left X U V)
+    let j := inclusionMap (@Set.inter_subset_right X U V)
+    let j' := inclusionToSpace U
+    let i' := inclusionToSpace V
+    ∀ (Y : Type*) [TopologicalSpace Y] (f : C(U, Y)) (g : C(V, Y)),
+      (f.comp i = g.comp j) →
+      ∃! (h : C(X, Y)), (h.comp j' = f) ∧ (h.comp i' = g) :=
+  example_0_9 U V hU hV h_cov
 
 theorem exercise_0_13_a : false := by sorry
 
