@@ -1,3 +1,7 @@
+-- Copyright (c) 2026 Samvel Safaryan. All rights reserved.
+-- Released under Apache 2.0 license as described in the file LICENSE.
+-- Authors: Samvel Safaryan <samvelsafaryan1313@gmail.com>
+
 import Mathlib
 
 open CategoryTheory
@@ -42,10 +46,8 @@ theorem example_0_4
 
 theorem example_0_5 (S X : Type*) [TopologicalSpace X] :
     letI : TopologicalSpace S := ⊥
-    ∀ (f : S → X), ∃! (g : C(S, X)), (g : S → X) = f := by
-  intro f
-  haveI : TopologicalSpace S := ⊥
-  exact ⟨@ContinuousMap.mk S X ⊥ ‹_› f continuous_bot, rfl, by exact fun g hg => hg ▸ rfl⟩
+    ∀ (f : S → X), ∃! (g : C(S, X)), (g : S → X) = f :=
+  fun f => ⟨@ContinuousMap.mk S X ⊥ ‹_› f continuous_bot, rfl, by exact fun g hg => hg ▸ rfl⟩
 
 def IsUniversalBilinearMap
     (k : Type*) [CommSemiring k]
@@ -224,7 +226,10 @@ theorem example_0_9 {X : Type*} [TopologicalSpace X] (U V : Set X)
       rw [hhg ⟨x, hxV⟩]
       exact ContinuousMap.congr_fun hy₂ ⟨x, hxV⟩
 
-theorem exercise_0_10 : false := by sorry
+theorem exercise_0_10 (S : Type*) (X : Type*) [TopologicalSpace X] :
+    letI : TopologicalSpace S := ⊤
+    ∀ (f : X → S), ∃! (g : C(X, S)), (g : X → S) = f :=
+  fun f => ⟨@ContinuousMap.mk X S ‹_› ⊤ f continuous_top, rfl, by exact fun g hg => hg ▸ rfl⟩
 
 theorem exercise_0_11 : false := by sorry
 
