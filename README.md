@@ -32,3 +32,6 @@ The formalization maps precisely to the table of contents of Tom Leinster's *Bas
   - [ ] **6.3** Interactions between adjoint functors and limits (Theory / Examples / Exercises)
 - [ ] **Appendix: Proof of the general adjoint functor theorem (GAFT)**
 
+## License
+
+This project is licensed under the [Apache 2.0 License](LICENSE).
