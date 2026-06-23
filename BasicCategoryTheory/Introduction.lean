@@ -251,9 +251,47 @@ theorem example_0_12 {X : Type*} [TopologicalSpace X] (U V : Set X)
       ∃! (h : C(X, Y)), (h.comp j' = f) ∧ (h.comp i' = g) :=
   example_0_9 U V hU hV h_cov
 
-theorem exercise_0_13_a : false := by sorry
+def IsInitialRingWithPoint (A : Type*) [Ring A] (a : A) : Prop :=
+  ∀ {R : Type*} [Ring R] (r : R), ∃! φ : A →+* R, φ a = r
 
-theorem exercise_0_13_b : false := by sorry
+open Polynomial in
+theorem exercise_0_13_a : IsInitialRingWithPoint ℤ[X] X := by
+  intro R _ r
+  use (aeval r).toRingHom
+  dsimp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe]
+  refine ⟨aeval_X r, fun g hg => ?_⟩
+  · ext p
+    · simp only [eq_intCast]
+    · rw [hg, RingHom.coe_coe, aeval_X]
+
+open Polynomial in
+theorem exercise_0_13_b {A : Type u} [Ring A] (a : A)
+    (h : IsInitialRingWithPoint.{u, u} A a) :
+    ∃! ι : ℤ[X] ≃+* A, ι X = a := by
+  rcases h (ULift.up (X : ℤ[X])) with ⟨g', hg'_a, hg'_uniq⟩
+  rcases exercise_0_13_a a with ⟨f, hf_X, hf_uniq⟩
+  let g : A →+* ℤ[X] := ULift.ringEquiv.toRingHom.comp g'
+  have hfg : f.comp g = RingHom.id A := by
+    have h_apply : (f.comp g) a = a := by
+      dsimp [g]
+      rw [hg'_a]
+      exact hf_X
+    have h_uniq : ∀ {x₁ x₂ : A →+* A}, (x₁ a = a) → (x₂ a = a) → x₁ = x₂ := by
+      intro x₁ x₂ hx₁ hx₂
+      exact (h (R := A) a).unique hx₁ hx₂
+    exact h_uniq h_apply rfl
+  have hgf : g.comp f = RingHom.id ℤ[X] := by
+    apply Polynomial.ringHom_ext
+    · simp only [eq_intCast, map_intCast, implies_true]
+    · rw [RingHom.coe_comp, Function.comp_apply, RingHom.id_apply, hf_X]
+      dsimp [g]
+      rw [hg'_a]
+      rfl
+  use RingEquiv.ofRingHom f g hfg hgf
+  dsimp
+  refine ⟨hf_X, fun y hy => ?_⟩
+  · ext x
+    rw [RingEquiv.ofRingHom_apply, ←hf_uniq y hy, RingHom.coe_coe]
 
 theorem exercise_0_14_a : false := by sorry
 
