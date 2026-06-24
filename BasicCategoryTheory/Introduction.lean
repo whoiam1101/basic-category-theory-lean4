@@ -2,23 +2,20 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Samvel Safaryan <samvelsafaryan1313@gmail.com>
 
-import Mathlib
-
-open CategoryTheory
+import Mathlib.Algebra.Polynomial.AlgebraMap
+import Mathlib.LinearAlgebra.DFinsupp
+import Mathlib.Order.CompletePartialOrder
+import Mathlib.Topology.ContinuousMap.Basic
 
 namespace Introduction
 
 universe u v
 
 theorem example_0_1 (X : Type u) : ∃ f : X → Unit, ∀ g : X → Unit, g = f :=
-  ⟨fun _ => (), fun g => funext fun x => Unit.ext (g x) ()⟩
+  ⟨fun _ => (), fun g => by apply Subsingleton.elim⟩
 
-theorem example_0_2 (R : Type u) [Ring R] : ∃ f : ℤ →+* R, ∀ g : ℤ →+* R, g = f := by
-  use Int.castRingHom R
-  intro g
-  ext n
-  rw [eq_intCast g n]
-  rfl
+theorem example_0_2 (R : Type u) [Ring R] : ∃ f : ℤ →+* R, ∀ g : ℤ →+* R, g = f :=
+  ⟨Int.castRingHom R, fun g => by apply Subsingleton.elim⟩
 
 theorem lemma_0_3 (A : Type) [Ring A]
     (h : ∀ R : Type, ∀ [Ring R], ∃ f : A →+* R, ∀ g : A →+* R, g = f) :
@@ -70,13 +67,11 @@ theorem example_0_6
       IsUniversalBilinearMap k U V T b := by
   refine ⟨TensorProduct k U V, inferInstance, inferInstance, TensorProduct.mk k U V, ?_⟩
   · intro W addW modW f
-    refine ⟨TensorProduct.lift f, ?_, ?_⟩
+    refine ⟨TensorProduct.lift f, ?_, fun g hg => ?_⟩
     · simp only [TensorProduct.mk_apply, TensorProduct.lift.tmul, implies_true]
-    · intro g hg
-      apply TensorProduct.ext
+    · apply TensorProduct.ext
       ext u v
-      dsimp only [LinearMap.compr₂ₛₗ_apply, TensorProduct.mk_apply, TensorProduct.lift.tmul]
-      exact hg u v
+      exact (hg u v).trans (TensorProduct.lift.tmul u v).symm
 
 theorem lemma_0_7
     {k : Type*} [CommSemiring k]
@@ -89,41 +84,17 @@ theorem lemma_0_7
     (h' : IsUniversalBilinearMap k U V T' b') :
     Nonempty (T ≃ₗ[k] T') := by
   let φ := Classical.choose <| h T' b'
-  have hφ : (∀ u v, φ (b u v) = b' u v) ∧ (∀ g', (∀ u v, g' (b u v) = b' u v) → g' = φ) :=
-    Classical.choose_spec <| h T' b'
+  have hφ := Classical.choose_spec <| h T' b'
   let ψ := Classical.choose <| h' T b
-  have hψ : (∀ u v, ψ (b' u v) = b u v) ∧ (∀ g', (∀ u v, g' (b' u v) = b u v) → g' = ψ) :=
-    Classical.choose_spec <| h' T b
-  have hid' : (∀ u v, (ψ.comp φ) (b u v) = b u v) ∧
-      (∀ g' : T →ₗ[k] T, (∀ u v, g' (b u v) = b u v) → g' = ψ.comp φ) := by
-    constructor
-    · intro u v
-      rw [LinearMap.coe_comp, Function.comp_apply, hφ.1 u v, hψ.1 u v]
-    · intro g' hg'
-      have h'' := (Classical.choose_spec (h T b)).2
-      have h1 : g' = Classical.choose (h T b) := h'' g' hg'
-      have h2 : ψ.comp φ = Classical.choose (h T b) := h'' (ψ.comp φ) <| fun u v => by
-        rw [LinearMap.comp_apply, hφ.1, hψ.1]
-      rw [h1, h2]
-  have hid'' : (∀ u v, (φ.comp ψ) (b' u v) = b' u v) ∧
-      (∀ g' : T' →ₗ[k] T', (∀ u v, g' (b' u v) = b' u v) → g' = φ.comp ψ) := by
-    constructor
-    · intro u v
-      rw [LinearMap.coe_comp, Function.comp_apply, hψ.1 u v, hφ.1 u v]
-    · intro g' hg'
-      have h'' := (Classical.choose_spec (h' T' b')).2
-      have h1 : g' = Classical.choose (h' T' b') := h'' g' hg'
-      have h2 : φ.comp ψ = Classical.choose (h' T' b') := h'' (φ.comp ψ) <| fun u v => by
-        rw [LinearMap.comp_apply, hψ.1, hφ.1]
-      rw [h1, h2]
-  have h₁ : φ ∘ₗ ψ = LinearMap.id := by
-    have eq1 : LinearMap.id = φ.comp ψ := hid''.2 LinearMap.id <| fun u v => by
-      rw [LinearMap.id_coe, id_eq]
-    exact eq1.symm
-  have h₂ : ψ ∘ₗ φ = LinearMap.id := by
-    have eq1 : LinearMap.id = ψ.comp φ := hid'.2 LinearMap.id <| fun u v => by
-      rw [LinearMap.id_coe, id_eq]
-    exact eq1.symm
+  have hψ := Classical.choose_spec <| h' T b
+  have h₁ : φ ∘ₗ ψ = LinearMap.id :=
+    have huniq := (Classical.choose_spec (h' T' b')).2
+    (huniq (φ.comp ψ) fun u v => (congr_arg φ (hψ.1 u v)).trans (hφ.1 u v)).trans
+      (huniq LinearMap.id fun _ _ => rfl).symm
+  have h₂ : ψ ∘ₗ φ = LinearMap.id :=
+    have huniq := (Classical.choose_spec (h T b)).2
+    (huniq (ψ.comp φ) fun u v => (congr_arg ψ (hφ.1 u v)).trans (hψ.1 u v)).trans
+      (huniq LinearMap.id fun _ _ => rfl).symm
   exact Nonempty.intro <| LinearEquiv.ofLinear φ ψ h₁ h₂
 
 theorem example_0_8 {G H : Type*} [Group G] [Group H] (θ : G →* H) :
@@ -134,23 +105,8 @@ theorem example_0_8 {G H : Type*} [Group G] [Group H] (θ : G →* H) :
       (∀ x, θ (f x) = ε (f x)) →
       ∃! f' : X →* θ.ker, ∀ x, ι (f' x) = f x := by
   dsimp only [Lean.Elab.WF.paramLet, Subgroup.subtype_apply, MonoidHom.one_apply]
-  refine ⟨?_, ?_⟩
-  · simp only [Subtype.forall, MonoidHom.mem_ker, imp_self, implies_true]
-  · intro X _ f h
-    let f' : X →* θ.ker := {
-      toFun := fun x => ⟨f x, by
-        rw [MonoidHom.mem_ker]
-        exact h x
-      ⟩
-      map_one' := by simp only [map_one, Subgroup.mk_eq_one]
-      map_mul' := fun a b => by simp only [map_mul, MulMemClass.mk_mul_mk]
-    }
-    use f'
-    simp only [MonoidHom.coe_mk, OneHom.coe_mk, implies_true, true_and, f']
-    intro g hg
-    ext x
-    rw [hg x]
-    dsimp only [MonoidHom.coe_mk, OneHom.coe_mk]
+  refine ⟨fun x => x.property, fun X _ f h => ⟨f.codRestrict θ.ker h, fun _ => rfl,
+    fun g hg => MonoidHom.ext fun x => Subtype.ext (hg x)⟩⟩
 
 def inclusionMap {X : Type*} [TopologicalSpace X]
     {s t : Set X} (h : s ⊆ t) : C(s, t) where
@@ -173,58 +129,31 @@ theorem example_0_9 {X : Type*} [TopologicalSpace X] (U V : Set X)
       ∃! (h : C(X, Y)), (h.comp j' = f) ∧ (h.comp i' = g) := by
   dsimp only [inclusionMap, inclusionToSpace, Lean.Elab.WF.paramLet]
   intro Y hY f g hfg
-  have h_mem_V_of_not_mem_U : ∀ (x : X), x ∉ U -> x ∈ V := by
-    intro x
-    have h_all : x ∈ U ∪ V := by
-      rw [h_cov]
-      exact Set.mem_univ x
-    intro hxU
-    rcases h_all with hxU' | hxV
-    · contradiction
-    · exact hxV
-  let h (x : X) : Y :=
-    if hxU : x ∈ U then
-      f ⟨x, hxU⟩
+  have h_mem_V_of_not_mem_U : ∀ (x : X), x ∉ U → x ∈ V :=
+    fun x hx => (h_cov.symm ▸ Set.mem_univ x : x ∈ U ∪ V).resolve_left hx
+  let h (x : X) : Y := if hx : x ∈ U then f ⟨x, hx⟩ else g ⟨x, h_mem_V_of_not_mem_U x hx⟩
+  have hhf : ∀ (u : U), h u = f u := fun u => dif_pos u.property
+  have hhg : ∀ (v : V), h v = g v := fun v =>
+    if hv : v.val ∈ U then
+      (dif_pos hv).trans <| ContinuousMap.congr_fun hfg ⟨v.val, hv, v.property⟩
     else
-      g ⟨x, h_mem_V_of_not_mem_U x hxU⟩
-  have hhf : ∀ (u : U), h u = f u := by
-    intro u
-    simp only [Subtype.coe_prop, ↓reduceDIte, Subtype.coe_eta, h]
-  have hhg : ∀ (v : V), h v = g v := by
-    intro v
-    dsimp only [ContinuousMap.comp_apply, ContinuousMap.coe_mk, h]
-    split_ifs with hv
-    · exact ContinuousMap.congr_fun hfg ⟨v, ⟨hv, v.property⟩⟩
-    · rfl
+      dif_neg hv
   have h_continous : Continuous h := by
     rw [←continuousOn_univ (f := h), ←h_cov]
     refine ContinuousOn.union_of_isOpen ?_ ?_ hU hV
     · apply continuousOn_iff_continuous_restrict.mpr
       have hhf : U.restrict h = f := funext hhf
-      rw [hhf]
-      exact f.continuous
+      exact hhf ▸ f.continuous
     · apply continuousOn_iff_continuous_restrict.mpr
       have hhg : V.restrict h = g := funext hhg
-      rw [hhg]
-      exact g.continuous
-  use ⟨h, h_continous⟩
-  dsimp only
-  refine ⟨⟨?_, ?_⟩, ?_⟩
-  · ext u
-    dsimp only [ContinuousMap.comp_apply, ContinuousMap.coe_mk]
-    exact hhf u
-  · ext v
-    dsimp only [ContinuousMap.comp_apply, ContinuousMap.coe_mk]
-    exact hhg v
-  · intro y ⟨hy₁, hy₂⟩
-    ext x
-    dsimp only [ContinuousMap.coe_mk]
-    by_cases hxU : x ∈ U
-    · rw [hhf ⟨x, hxU⟩]
-      exact ContinuousMap.congr_fun hy₁ ⟨x, hxU⟩
-    · have hxV : x ∈ V := h_mem_V_of_not_mem_U x hxU
-      rw [hhg ⟨x, hxV⟩]
-      exact ContinuousMap.congr_fun hy₂ ⟨x, hxV⟩
+      exact hhg ▸ g.continuous
+  refine ⟨⟨h, h_continous⟩, ⟨ContinuousMap.ext hhf, ContinuousMap.ext hhg⟩, fun y ⟨hy₁, hy₂⟩ => ?_⟩
+  · exact ContinuousMap.ext fun x =>
+      if hx : x ∈ U then
+        (ContinuousMap.congr_fun hy₁ ⟨x, hx⟩).trans (hhf ⟨x, hx⟩).symm
+      else
+        let hxV := h_mem_V_of_not_mem_U x hx
+        (ContinuousMap.congr_fun hy₂ ⟨x, hxV⟩).trans (hhg ⟨x, hxV⟩).symm
 
 theorem exercise_0_10 (S : Type*) (X : Type*) [TopologicalSpace X] :
     letI : TopologicalSpace S := ⊤
@@ -293,13 +222,129 @@ theorem exercise_0_13_b {A : Type u} [Ring A] (a : A)
   · ext x
     rw [RingEquiv.ofRingHom_apply, ←hf_uniq y hy, RingHom.coe_coe]
 
-theorem exercise_0_14_a : false := by sorry
+def IsUniversalCone {k : Type*} [Semiring k]
+    {X : Type u} [AddCommMonoid X] [Module k X]
+    {Y : Type v} [AddCommMonoid Y] [Module k Y]
+    (P : Type*) [AddCommMonoid P] [Module k P]
+    (p₁ : P →ₗ[k] X) (p₂ : P →ₗ[k] Y) : Prop :=
+  ∀ (V : Type (max u v)) [AddCommMonoid V] [Module k V]
+    (f₁ : V →ₗ[k] X) (f₂ : V →ₗ[k] Y),
+    ∃! f : V →ₗ[k] P, p₁.comp f = f₁ ∧ p₂.comp f = f₂
 
-theorem exercise_0_14_b : false := by sorry
+theorem exercise_0_14_a {k : Type*} [Semiring k]
+    {X : Type u} [AddCommMonoid X] [Module k X]
+    {Y : Type v} [AddCommMonoid Y] [Module k Y] :
+    ∃ (P : Type (max u v)) (_ : AddCommMonoid P) (_ : Module k P)
+      (p₁ : P →ₗ[k] X) (p₂ : P →ₗ[k] Y), IsUniversalCone P p₁ p₂ := by
+  refine ⟨X × Y, inferInstance, inferInstance, LinearMap.fst k X Y, LinearMap.snd k X Y, ?_⟩
+  · intro V _ _ f₁ f₂
+    refine ⟨LinearMap.prod f₁ f₂, ⟨by rfl, by rfl⟩, fun f hf => ?_⟩
+    · ext x
+      · exact LinearMap.congr_fun hf.1 x
+      · exact LinearMap.congr_fun hf.2 x
 
-theorem exercise_0_14_c : false := by sorry
+theorem exercise_14_b {k : Type*} [Semiring k]
+    {X : Type u} [AddCommMonoid X] [Module k X]
+    {Y : Type v} [AddCommMonoid Y] [Module k Y]
+    {P : Type (max u v)} [AddCommMonoid P] [Module k P]
+    {P' : Type (max u v)} [AddCommMonoid P'] [Module k P']
+    (p₁ : P →ₗ[k] X) (p₂ : P →ₗ[k] Y)
+    (p₁' : P' →ₗ[k] X) (p₂' : P' →ₗ[k] Y)
+    (h : IsUniversalCone P p₁ p₂)
+    (h' : IsUniversalCone P' p₁' p₂') :
+    ∃ i : P ≃ₗ[k] P', p₁'.comp i.toLinearMap = p₁ ∧ p₂'.comp i.toLinearMap = p₂ := by
+  rcases h P' p₁' p₂' with ⟨ψ, ⟨hψ₁, hψ₂⟩, hψ_uniq⟩
+  rcases h' P p₁ p₂ with ⟨φ, ⟨hφ₁, hφ₂⟩, hφ_uniq⟩
+  rcases h P p₁ p₂ with ⟨idP, ⟨_, _⟩, hidP_uniq⟩
+  rcases h' P' p₁' p₂' with ⟨idP', ⟨_, _⟩, hidP'_uniq⟩
+  have hψφ : ψ.comp φ = LinearMap.id := by
+    have h₁ : p₁.comp (ψ.comp φ) = p₁ := by
+      nth_rw 2 [←hφ₁]
+      rw [←hψ₁]
+      rfl
+    have h₂ : p₂.comp (ψ.comp φ) = p₂ := by
+      nth_rw 2 [←hφ₂]
+      rw [←hψ₂]
+      rfl
+    have h₃ := hidP_uniq (ψ.comp φ) ⟨h₁, h₂⟩
+    have h₄ := hidP_uniq LinearMap.id ⟨rfl, rfl⟩
+    exact Eq.trans h₃ h₄.symm
+  have hφψ : φ.comp ψ = LinearMap.id := by
+    have h₁ : p₁'.comp (φ.comp ψ) = p₁' := by
+      nth_rw 2 [←hψ₁]
+      rw [←hφ₁]
+      rfl
+    have h₂ : p₂'.comp (φ.comp ψ) = p₂' := by
+      nth_rw 2 [←hψ₂]
+      rw [←hφ₂]
+      rfl
+    have h₃ := hidP'_uniq (φ.comp ψ) ⟨h₁, h₂⟩
+    have h₄ := hidP'_uniq LinearMap.id ⟨rfl, rfl⟩
+    exact Eq.trans h₃ h₄.symm
+  exact ⟨LinearEquiv.ofLinear φ ψ hφψ hψφ, ⟨hφ₁, hφ₂⟩⟩
 
-theorem exercise_0_14_d : false := by sorry
+def IsUniversalCoCone {k : Type*} [Semiring k]
+    {X : Type u} [AddCommMonoid X] [Module k X]
+    {Y : Type v} [AddCommMonoid Y] [Module k Y]
+    (Q : Type*) [AddCommMonoid Q] [Module k Q]
+    (q₁ : X →ₗ[k] Q) (q₂ : Y →ₗ[k] Q) : Prop :=
+  ∀ (V : Type (max u v)) [AddCommMonoid V] [Module k V]
+    (f₁ : X →ₗ[k] V) (f₂ : Y →ₗ[k] V),
+    ∃! f : Q →ₗ[k] V, f.comp q₁ = f₁ ∧ f.comp q₂ = f₂
+
+theorem exercise_0_14_c {k : Type*} [Semiring k]
+    {X : Type u} [AddCommMonoid X] [Module k X]
+    {Y : Type v} [AddCommMonoid Y] [Module k Y] :
+    ∃ (Q : Type (max u v)) (_ : AddCommMonoid Q) (_ : Module k Q)
+      (q₁ : X →ₗ[k] Q) (q₂ : Y →ₗ[k] Q), IsUniversalCoCone Q q₁ q₂ := by
+  refine ⟨X × Y, inferInstance, inferInstance, LinearMap.inl k X Y, LinearMap.inr k X Y, ?_⟩
+  · intro V _ _ f₁ f₂
+    refine ⟨LinearMap.coprod f₁ f₂, ⟨?_, ?_⟩, fun f hf => ?_⟩
+    · apply LinearMap.coprod_inl
+    · apply LinearMap.coprod_inr
+    · ext x
+      · exact LinearMap.congr_fun (hf.1.trans (LinearMap.coprod_inl f₁ f₂).symm) x
+      · exact LinearMap.congr_fun (hf.2.trans (LinearMap.coprod_inr f₁ f₂).symm) x
+
+theorem exercise_14_d {k : Type*} [Semiring k]
+    {X : Type u} [AddCommMonoid X] [Module k X]
+    {Y : Type v} [AddCommMonoid Y] [Module k Y]
+    {Q : Type (max u v)} [AddCommMonoid Q] [Module k Q]
+    {Q' : Type (max u v)} [AddCommMonoid Q'] [Module k Q']
+    (q₁ : X →ₗ[k] Q) (q₂ : Y →ₗ[k] Q)
+    (q₁' : X →ₗ[k] Q') (q₂' : Y →ₗ[k] Q')
+    (h : IsUniversalCoCone Q q₁ q₂)
+    (h' : IsUniversalCoCone Q' q₁' q₂') :
+    ∃ i : Q ≃ₗ[k] Q', i.toLinearMap.comp q₁ = q₁' ∧ i.toLinearMap.comp q₂ = q₂' := by
+  rcases h Q' q₁' q₂' with ⟨ψ, ⟨hψ₁, hψ₂⟩, hψ_uniq⟩
+  rcases h' Q q₁ q₂ with ⟨φ, ⟨hφ₁, hφ₂⟩, hφ_uniq⟩
+  rcases h Q q₁ q₂ with ⟨idQ, ⟨_, _⟩, hidQ_uniq⟩
+  rcases h' Q' q₁' q₂' with ⟨idQ', ⟨_, _⟩, hidQ'_uniq⟩
+  have hφψ : φ.comp ψ = LinearMap.id := by
+    have h₁ : (φ.comp ψ).comp q₁ = q₁ := by
+      nth_rw 2 [←hφ₁]
+      rw [←hψ₁]
+      rfl
+    have h₂ : (φ.comp ψ).comp q₂ = q₂ := by
+      nth_rw 2 [←hφ₂]
+      rw [←hψ₂]
+      rfl
+    have h₃ := hidQ_uniq (φ.comp ψ) ⟨h₁, h₂⟩
+    have h₄ := hidQ_uniq LinearMap.id ⟨rfl, rfl⟩
+    exact Eq.trans h₃ h₄.symm
+  have hψφ : ψ.comp φ = LinearMap.id := by
+    have h₁ : (ψ.comp φ).comp q₁' = q₁' := by
+      nth_rw 2 [←hψ₁]
+      rw [←hφ₁]
+      rfl
+    have h₂ : (ψ.comp φ).comp q₂' = q₂' := by
+      nth_rw 2 [←hψ₂]
+      rw [←hφ₂]
+      rfl
+    have h₃ := hidQ'_uniq (ψ.comp φ) ⟨h₁, h₂⟩
+    have h₄ := hidQ'_uniq LinearMap.id ⟨rfl, rfl⟩
+    exact Eq.trans h₃ h₄.symm
+  exact ⟨LinearEquiv.ofLinear ψ φ hψφ hφψ, ⟨hψ₁, hψ₂⟩⟩
 
 end Introduction
 
