@@ -14,7 +14,7 @@ The formalization maps precisely to the table of contents of Tom Leinster's *Bas
   - [x] **2.1** Definition and examples
   - [x] **2.2** Adjunctions via units and counits
   - [x] **2.3** Adjunctions via initial objects
-- [ ] **3. Interlude on sets**
+- [x] **3. Interlude on sets**
   - [x] **3.1** Constructions with sets
   - [x] **3.2** Small and large categories
   - [x] **3.3** Historical remarks
