@@ -34,4 +34,6 @@ The formalization maps precisely to the table of contents of Tom Leinster's *Bas
 
 ## License
 
-This project is licensed under the [Apache 2.0 License](LICENSE).
+This project's code (the Lean formalization in `BasicCategoryTheory/`) is licensed under the [Apache 2.0 License](LICENSE).
+
+The textbook content in `textbook/` — Tom Leinster's **"Basic Category Theory"** (Cambridge Studies in Advanced Mathematics, Vol. 143, Cambridge University Press, 2014; [arXiv:1612.09375](https://arxiv.org/abs/1612.09375)) — is licensed under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-nc-sa/4.0/) (CC BY-NC-SA 4.0). See [TEXTBOOK_LICENSE.md](TEXTBOOK_LICENSE.md).

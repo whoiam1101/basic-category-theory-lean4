@@ -6,7 +6,12 @@ This project formalizes Tom Leinster's textbook *Basic Category Theory* (arXiv:1
 
 - **Lean version**: `v4.30.0` (see `lean-toolchain`)
 - **Build**: `lake build`
-- **Textbook**: `textbook/arXiv-1612.09375v2/` — contains only essential chapter `.tex` files + `macros.tex` (custom notation). All auxiliary files (`.pdf`, `.cls`, `.ind`, front/preface) have been removed.
+- **Textbook**: `textbook/` — contains only essential chapter `.tex` files + `macros.tex` (custom notation). All auxiliary files (`.pdf`, `.cls`, `.ind`, front/preface) have been removed. The `.tex` files are the original textbook source and **must never be modified**.
+
+## License
+
+- **Code** (`BasicCategoryTheory/`): Apache 2.0 — see `LICENSE`
+- **Textbook** (`textbook/`): CC BY-NC-SA 4.0 by Tom Leinster — see `TEXTBOOK_LICENSE.md`. **Do not edit any `.tex` file in `textbook/`.**
 
 ## Project structure
 
@@ -16,7 +21,7 @@ BasicCategoryTheory/
 ├── Introduction.lean                                       (done)
 └── Chapter1_CategoriesFunctorsAndNaturalTransformations/
     ├── Categories.lean                                     (section 1.1, done)
-    ├── Functors.lean                                       (section 1.2)
+    ├── Functors.lean                                       (section 1.2, done)
     └── NaturalTransformations.lean                         (section 1.3)
 ```
 
@@ -31,7 +36,7 @@ Open `README.md` and locate the TODO list in the "Project Progress" section.
 Scan top-to-bottom for the first `- [ ]` item. That is the ONE task for this session.
 
 ### 3. Do that task
-- Read the corresponding section in the textbook (`textbook/arXiv-1612.09375v2/`) to understand what needs to be formalized.
+- Read the corresponding section in the textbook (`textbook/`) to understand what needs to be formalized.
 - Edit the corresponding `.lean` file. Match the existing code style: each theorem/example/exercise is a separate declaration with a descriptive name (e.g. `example_1_1_5`, `exercise_0_14_a`).
 - Keep the copyright header and namespace structure.
 - Use `import Mathlib` (the project already depends on mathlib).
@@ -42,16 +47,19 @@ Run `lake build` and fix any errors. Use the Lean LSP tools (`lean_goal`, `lean_
 
 ### 5. Self-verify against textbook
 Before marking the task done, do a thorough self-check:
-- Open the corresponding `.tex` file in `textbook/arXiv-1612.09375v2/` and scan all definitions, theorems, examples, lemmas, and exercises in the target section.
-- Compare each against the `.lean` file: every numbered item must have a corresponding declaration with matching name (e.g. `example_1_1_5`, `exercise_1_1_13`).
-- Verify that type signatures match the textbook statements. For exercises, ensure the formal statement captures exactly what the textbook asks.
+- Open the corresponding `.tex` file in `textbook/` and scan **every** definition, theorem, example, lemma, corollary, and exercise in the target section.
+- Compare each against the `.lean` file: **every numbered item must have a corresponding declaration** with matching name (e.g. `example_1_1_5`, `exercise_1_1_13`, `lemma_1_2_3`).
+- Verify that **type signatures match the textbook statements exactly**. For exercises, ensure the formal statement captures **exactly** what the textbook asks.
 - If any item is missing, add it. If an item cannot be formalized (e.g. purely conceptual exercise, missing mathlib definition), skip it silently — no comments.
 
-### 6. Mark as done
-Once the file compiles with no errors and no `sorry`, update `README.md`:
+### 6. Eliminate warnings
+Run `lean_diagnostic_messages` and fix all warnings. Warnings should not remain in the final code.
+
+### 7. Mark as done
+Once the file compiles with no errors, no `sorry`, and no warnings, update `README.md`:
 - Change `- [ ] **Section Name**` → `- [x] **Section Name**`
 
-### 7. Commit
+### 8. Commit
 Use the following commit format:
 ```
 [FORMALIZE] <Chapter>: <brief description of what was formalized>
@@ -67,7 +75,7 @@ git add -A
 git commit -m "[FORMALIZE] ..."
 ```
 
-### 8. Stop
+### 9. Stop
 Do NOT start the next task. The session is done.
 
 ## Conventions
@@ -81,6 +89,7 @@ Do NOT start the next task. The session is done.
   -- Authors: Samvel Safaryan <samvelsafaryan1313@gmail.com>
   ```
 - **No comments in `.lean` files**: do not write explanatory comments in the code. The declarations should be self-documenting through their names and types.
+- **No warnings**: after `lake build` succeeds, run `lean_diagnostic_messages` and fix any warnings. Warnings must not remain.
 - **Lightweight proofs**: use simple, explicit proofs. Prefer:
   - `fun ... => ...` for direct term-mode constructions
   - `rw [...]`, `simp [...]`, `exact ...`, `apply ...` for small tactic blocks

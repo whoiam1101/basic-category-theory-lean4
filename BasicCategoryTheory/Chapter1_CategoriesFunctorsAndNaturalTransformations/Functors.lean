@@ -54,7 +54,7 @@ def exercise_1_2_24a_FA {A B C : Type u} [Category.{v} A] [Category.{v} B] [Cate
   map {b b'} g := F.map (Prod.mkHom (𝟙 a) g)
   map_id b := F.map_id (a, b)
   map_comp {b b' b''} g h := by
-    simpa using (F.map_comp (Prod.mkHom (𝟙 a) g) (Prod.mkHom (𝟙 a) h)).symm
+    rw [← F.map_comp (Prod.mkHom (𝟙 a) g) (Prod.mkHom (𝟙 a) h)]; simp
 
 def exercise_1_2_24a_F_B {A B C : Type u} [Category.{v} A] [Category.{v} B] [Category.{v} C]
     (F : A × B ⥤ C) (b : B) : A ⥤ C where
@@ -62,7 +62,7 @@ def exercise_1_2_24a_F_B {A B C : Type u} [Category.{v} A] [Category.{v} B] [Cat
   map {a a'} f := F.map (Prod.mkHom f (𝟙 b))
   map_id a := F.map_id (a, b)
   map_comp {a a' a''} f f' := by
-    simpa using (F.map_comp (Prod.mkHom f (𝟙 b)) (Prod.mkHom f' (𝟙 b))).symm
+    rw [← F.map_comp (Prod.mkHom f (𝟙 b)) (Prod.mkHom f' (𝟙 b))]; simp
 
 theorem exercise_1_2_24b_i {A B C : Type u} [Category.{v} A] [Category.{v} B] [Category.{v} C]
     (F : A × B ⥤ C) (a : A) (b : B) :
