@@ -35,7 +35,7 @@
       "Edit(**/LICENSE)",
       "Edit(**/TEXTBOOK_LICENSE.md)",
       "Edit(**/textbook/*.tex)",
-      "Edit(**/textbook/macros.tex)",
+      "Edit(**/textbook/macros.tex)"
     ]
   },
   "skills": {
