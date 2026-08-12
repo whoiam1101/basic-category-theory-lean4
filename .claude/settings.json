@@ -28,17 +28,15 @@
       "Bash(git diff *)",
       "Bash(grep *)",
       "Bash(find *)",
+      "Bash(pdftotext *)",
+      "Bash(wget *)",
       "Read(*)"
     ],
     "deny": [
       "Edit(**/LICENSE)",
-      "Write(**/LICENSE)",
       "Edit(**/TEXTBOOK_LICENSE.md)",
-      "Write(**/TEXTBOOK_LICENSE.md)",
       "Edit(**/textbook/*.tex)",
-      "Write(**/textbook/*.tex)",
       "Edit(**/textbook/macros.tex)",
-      "Write(**/textbook/macros.tex)"
     ]
   },
   "skills": {
