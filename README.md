@@ -32,6 +32,12 @@ The formalization maps precisely to the table of contents of Tom Leinster's *Bas
   - [ ] **6.3** Interactions between adjoint functors and limits
 - [ ] **Appendix: Proof of the general adjoint functor theorem (GAFT)**
 
+Some items from the textbook are **silently skipped** and not reflected in the TODO list. This applies to:
+- purely conceptual remarks, discussion paragraphs, and open-ended «find examples» exercises;
+- items whose formalization would require definitions or categories not available in mathlib (e.g. the category of fields);
+- constructions that depend on results not yet formalized (e.g. the General Adjoint Functor Theorem);
+- items that are mathematically straightforward but whose formalization is disproportionately complex and would not add insight.
+
 ## License
 
 This project's code (the Lean formalization in `BasicCategoryTheory/`) is licensed under the [Apache 2.0 License](LICENSE).
