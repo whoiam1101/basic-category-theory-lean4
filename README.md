@@ -6,7 +6,7 @@ This repository contains a comprehensive, non-commercial formalization of Tom Le
 The formalization maps precisely to the table of contents of Tom Leinster's *Basic Category Theory*. Each sub-item tracks the formalization of the corresponding theoretical definitions/theorems, concrete examples, and end-of-chapter exercises.
 
 - [x] **Introduction**
-- [ ] **1. Categories, functors and natural transformations**
+- [x] **1. Categories, functors and natural transformations**
   - [x] **1.1** Categories
   - [x] **1.2** Functors
   - [x] **1.3** Natural transformations

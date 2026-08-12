@@ -29,7 +29,6 @@
       "Bash(grep *)",
       "Bash(find *)",
       "Bash(pdftotext *)",
-      "Bash(wget *)",
       "Read(*)"
     ],
     "deny": [

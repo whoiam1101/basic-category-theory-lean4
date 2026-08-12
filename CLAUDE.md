@@ -58,6 +58,7 @@ Run `lean_diagnostic_messages` and fix all warnings. Warnings should not remain 
 ### 7. Mark as done
 Once the file compiles with no errors, no `sorry`, and no warnings, update `README.md`:
 - Change `- [ ] **Section Name**` → `- [x] **Section Name**`
+- If all subsections of a chapter are done, also mark the parent chapter as `[x]`.
 
 ### 8. Commit
 Use the following commit format:
