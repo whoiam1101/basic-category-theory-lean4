@@ -11,7 +11,7 @@ The formalization maps precisely to the table of contents of Tom Leinster's *Bas
   - [x] **1.2** Functors
   - [x] **1.3** Natural transformations
 - [ ] **2. Adjoints**
-  - [ ] **2.1** Definition and examples
+  - [x] **2.1** Definition and examples
   - [ ] **2.2** Adjunctions via units and counits
   - [ ] **2.3** Adjunctions via initial objects
 - [ ] **3. Interlude on sets**
