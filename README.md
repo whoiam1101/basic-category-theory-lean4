@@ -7,7 +7,7 @@ The formalization maps precisely to the table of contents of Tom Leinster's *Bas
 
 - [x] **Introduction**
 - [ ] **1. Categories, functors and natural transformations**
-  - [ ] **1.1** Categories
+  - [x] **1.1** Categories
   - [ ] **1.2** Functors
   - [ ] **1.3** Natural transformations
 - [ ] **2. Adjoints**
