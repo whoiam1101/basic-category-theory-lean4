@@ -25,6 +25,49 @@ BasicCategoryTheory/
     └── NaturalTransformations.lean                         (section 1.3)
 ```
 
+## Proof decomposition
+
+For complex theorems and exercises, decompose the proof into small, reusable lemmas instead of one long proof:
+
+- **Split long proofs**: if a proof would exceed ~50 lines, extract intermediate statements as separate lemmas. No single theorem should carry hundreds of lines.
+- **Name helper lemmas descriptively** (e.g. `exercise_2_2_18a_unit_injective`) so they can be reused by later declarations.
+- **One lemma, one purpose**: each helper proves a single clear intermediate step (naturality of a component, injectivity of a map, a triangle identity, etc.).
+- **Reuse across items**: if several textbook items share a sub-result, prove it once as a shared lemma and cite it in each.
+- **Search before proving**: mathlib has 100k+ theorems — always search for existing lemmas before writing a proof from scratch (see Search tools below).
+
+## Search tools
+
+Available tools for finding mathlib lemmas (via the lean-lsp MCP server):
+
+- `lean_loogle` — pattern search by type signature (e.g. `(F ⊣ G) → ...`, `_ * (_ ^ _)`, `|- _ < _`) — 3 req/30s
+- `lean_leansearch` — natural language → mathlib (e.g. "right adjoint full faithful iff counit iso") — 90 req/30s
+- `lean_leanfinder` — semantic/conceptual search by mathematical meaning — 10 req/30s
+- `lean_state_search` — goal-directed lemma search from a concrete proof state — 6 req/30s
+- `lean_local_search` — fast local declaration-name prefix search (use BEFORE trying a lemma name)
+- `lean_hammer_premise` — premise suggestions for automation tactics at a goal — 6 req/30s
+
+ALWAYS search for existing lemmas (mathlib or earlier in this project) before proving anything from scratch. If mathlib already provides a lemma, use it directly.
+
+### Local loogle (no rate limits)
+
+A locally-built loogle binary (same Lean toolchain as this project) provides unlimited pattern search:
+
+```bash
+lake env ~/Documents/loogle/.lake/build/bin/loogle --module Mathlib "<type pattern>"
+lake env ~/Documents/loogle/.lake/build/bin/loogle --module BasicCategoryTheory.Chapter2_Adjoints.Adjoints "F ⊣ G"
+```
+
+Use it when the MCP `lean_loogle` rate limit (3/30s) is hit, or to search this project's own declarations. The Mathlib index is cached on disk; the first query against a new module builds its index.
+
+## Parallelization with subagents
+
+When several independent sections are pending on the TODO list, launch one subagent per section (Agent tool with `run_in_background: true`):
+
+- Each subagent works on its own `.lean` file (or its own disjoint section of a file) to avoid conflicts — never let two agents edit the same file simultaneously.
+- Each subagent follows the session workflow below (read textbook → formalize → build → verify → update README → commit).
+- Subagents that need the same mathlib lemmas work independently; they only share the TODO/README state.
+- Skippable sections (e.g. historical remarks) can be handled by a quick agent that just marks the README.
+
 ## Session workflow — ONE task per session
 
 Every session MUST follow this workflow:

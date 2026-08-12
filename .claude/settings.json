@@ -20,6 +20,10 @@
       "mcp__lean-lsp__lean_state_search",
       "mcp__lean-lsp__lean_build",
       "mcp__lean-lsp__lean_get_widgets",
+      "mcp__lean-lsp__lean_hammer_premise",
+      "mcp__lean-lsp__lean_profile_proof",
+      "mcp__lean-lsp__lean_references",
+      "mcp__lean-lsp__lean_get_widget_source",
       "Bash(lake build *)",
       "Bash(git add *)",
       "Bash(git commit *)",
@@ -29,7 +33,8 @@
       "Bash(grep *)",
       "Bash(find *)",
       "Bash(pdftotext *)",
-      "Read(*)"
+      "Read(*)",
+      "WebSearch"
     ],
     "deny": [
       "Edit(**/LICENSE)",
