@@ -17,7 +17,7 @@ The formalization maps precisely to the table of contents of Tom Leinster's *Bas
 - [ ] **3. Interlude on sets**
   - [ ] **3.1** Constructions with sets
   - [ ] **3.2** Small and large categories
-  - [ ] **3.3** Historical remarks
+  - [x] **3.3** Historical remarks
 - [ ] **4. Representables**
   - [ ] **4.1** Definitions and examples
   - [ ] **4.2** The Yoneda lemma
