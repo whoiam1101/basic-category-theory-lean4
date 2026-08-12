@@ -50,14 +50,19 @@ ALWAYS search for existing lemmas (mathlib or earlier in this project) before pr
 
 ### Local loogle (no rate limits)
 
-A locally-built loogle binary (same Lean toolchain as this project) provides unlimited pattern search:
+A locally-built [loogle](https://github.com/nomeata/loogle) binary provides unlimited pattern search. Installation: clone the repo anywhere (e.g. `~/loogle`), copy this project's `lean-toolchain` into it, and run `lake build` there — loogle MUST be built with the exact toolchain that produced this project's `.olean` files. See README «Setup & Development» for full instructions.
+
+Usage (from the project root, substituting the loogle checkout path):
 
 ```bash
-lake env ~/Documents/loogle/.lake/build/bin/loogle --module Mathlib "<type pattern>"
-lake env ~/Documents/loogle/.lake/build/bin/loogle --module BasicCategoryTheory.Chapter2_Adjoints.Adjoints "F ⊣ G"
+# mathlib pattern search (index cached on disk after first run):
+lake env <loogle-path>/.lake/build/bin/loogle --module Mathlib "<type pattern>"
+
+# search this project's own declarations:
+lake env <loogle-path>/.lake/build/bin/loogle --module BasicCategoryTheory.Chapter2_Adjoints.Adjoints "F ⊣ G"
 ```
 
-Use it when the MCP `lean_loogle` rate limit (3/30s) is hit, or to search this project's own declarations. The Mathlib index is cached on disk; the first query against a new module builds its index.
+Use it when the MCP `lean_loogle` rate limit (3/30s) is hit, or to search this project's own declarations. Pattern syntax: `_` matches any subexpression, `?a`/`?b` are type variables, `"substring"` matches names, `|- ...` matches the conclusion.
 
 ## Parallelization with subagents
 

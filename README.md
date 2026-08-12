@@ -76,18 +76,31 @@ The project is developed with the [lean-lsp MCP server](https://github.com/nomea
 
 #### Local loogle (unlimited pattern search)
 
-A locally-built [loogle](https://github.com/nomeata/loogle) binary lives at `~/Documents/loogle/.lake/build/bin/loogle`, compiled with the same Lean toolchain as this project (a hard requirement: loogle must be built with the exact toolchain that produced the `.olean` files it searches).
+[loogle](https://github.com/nomeata/loogle) can be run locally for unlimited type-pattern searches, with no rate limits (the MCP `lean_loogle` tool is limited to 3 queries/30s).
+
+**Installation** (once):
 
 ```bash
-# Search mathlib (index is cached on disk after the first run):
-lake env ~/Documents/loogle/.lake/build/bin/loogle --module Mathlib "(?a → ?b) → List ?a → List ?b"
+git clone https://github.com/nomeata/loogle ~/loogle
+cp lean-toolchain ~/loogle/            # from THIS repo — loogle MUST be built with the
+cd ~/loogle && lake build              # exact toolchain that produced the .olean files
+# binary: ~/loogle/.lake/build/bin/loogle
+```
+
+The toolchain copy is a hard requirement: loogle reads the project's `.olean` files, which are tied to the exact Lean version in `lean-toolchain`. If this repo ever bumps its Lean version, re-copy `lean-toolchain` into the loogle checkout and run `lake build` there again.
+
+**Usage** (from this repo's root; `lake env` adds the project's oleans to the search path):
+
+```bash
+# Search mathlib (the mathlib index is cached on disk after the first run):
+lake env ~/loogle/.lake/build/bin/loogle --module Mathlib "(?a → ?b) → List ?a → List ?b"
 
 # Search this project's own declarations:
-lake env ~/Documents/loogle/.lake/build/bin/loogle \
+lake env ~/loogle/.lake/build/bin/loogle \
   --module BasicCategoryTheory.Chapter2_Adjoints.Adjoints "F ⊣ G"
 ```
 
-If the local checkout is ever rebuilt against a different Lean version, copy this project's `lean-toolchain` into the loogle checkout and run `lake build` there again.
+Pattern syntax: `_` matches any subexpression, `?a`/`?b` are type variables (same name = same type), `"substring"` matches names, `Foo, Bar` = must mention both, `|- ...` matches the conclusion.
 
 ## License
 
