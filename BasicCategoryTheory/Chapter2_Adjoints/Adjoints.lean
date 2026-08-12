@@ -113,6 +113,81 @@ noncomputable def exercise_2_1_13_right {C : Type u} [Category.{v} C] {D : Type 
     rw [this, Equiv.symm_apply_apply]
   exact IsTerminal.ofUnique (G.obj T)
 
+lemma lemma_2_2_2_left_triangle {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
+    {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) (A : C) :
+    F.map (adj.unit.app A) ≫ adj.counit.app (F.obj A) = 𝟙 (F.obj A) :=
+  adj.left_triangle_components A
+
+lemma lemma_2_2_2_right_triangle {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
+    {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) (B : D) :
+    adj.unit.app (G.obj B) ≫ G.map (adj.counit.app B) = 𝟙 (G.obj B) :=
+  adj.right_triangle_components B
+
+def lemma_2_2_4_unit {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
+    {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) {A : C} {B : D} (g : F.obj A ⟶ B) :
+    adj.homEquiv A B g = adj.unit.app A ≫ G.map g :=
+  adj.homEquiv_unit A B g
+
+def lemma_2_2_4_counit {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
+    {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) {A : C} {B : D} (f : A ⟶ G.obj B) :
+    (adj.homEquiv A B).symm f = F.map f ≫ adj.counit.app B :=
+  adj.homEquiv_counit A B f
+
+def theorem_2_2_5_forward {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
+    {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) : Adjunction.CoreUnitCounit F G :=
+  Adjunction.CoreUnitCounit.mk adj.unit adj.counit
+
+noncomputable def theorem_2_2_5_reverse {C : Type u} [Category.{v} C] {D : Type u'}
+    [Category.{v'} D] {F : C ⥤ D} {G : D ⥤ C}
+    (c : Adjunction.CoreUnitCounit F G) : F ⊣ G :=
+  Adjunction.mkOfUnitCounit c
+
+theorem corollary_2_2_6 {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
+    {F : C ⥤ D} {G : D ⥤ C} :
+    Nonempty (F ⊣ G) ↔ Nonempty (Adjunction.CoreUnitCounit F G) := by
+  constructor
+  · intro h; rcases h with ⟨adj⟩; exact ⟨theorem_2_2_5_forward adj⟩
+  · intro h; rcases h with ⟨c⟩; exact ⟨theorem_2_2_5_reverse c⟩
+
+theorem exercise_2_2_10 {A B : Type u} [Preorder A] [Preorder B] (f : A → B) (g : B → A)
+    (hf : Monotone f) (hg : Monotone g) :
+    ((∀ a b, f a ≤ b ↔ a ≤ g b) ↔ (∀ a, a ≤ g (f a)) ∧ (∀ b, f (g b) ≤ b)) := by
+  constructor
+  · intro h
+    constructor
+    · intro a
+      apply (h a (f a)).mp
+      exact le_refl (f a)
+    · intro b
+      apply (h (g b) b).mpr
+      exact le_refl (g b)
+  · intro ⟨h₁, h₂⟩ a b
+    constructor
+    · intro hfa_le_b
+      have ha_gfa : a ≤ g (f a) := h₁ a
+      have hgfa_gb : g (f a) ≤ g b := hg hfa_le_b
+      exact le_trans ha_gfa hgfa_gb
+    · intro ha_gb
+      have hfa_fgb : f a ≤ f (g b) := hf ha_gb
+      have hfgb_b : f (g b) ≤ b := h₂ b
+      exact le_trans hfa_fgb hfgb_b
+
+theorem exercise_2_2_12a {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
+    {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) : (G.Full ∧ G.Faithful) ↔ IsIso adj.counit := by
+  constructor
+  · intro ⟨hFull, hFaithful⟩
+    haveI := hFull; haveI := hFaithful
+    exact Adjunction.counit_isIso_of_R_fully_faithful adj
+  · intro h
+    haveI := h
+    have hFF : G.FullyFaithful := Adjunction.fullyFaithfulROfIsIsoCounit adj
+    exact ⟨hFF.full, hFF.faithful⟩
+
+noncomputable def exercise_2_2_14 {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
+    {S : Type u} [Category.{v} S] {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) :
+    (Functor.whiskeringLeft D C S).obj G ⊣ (Functor.whiskeringLeft C D S).obj F :=
+  Adjunction.whiskerLeft S adj
+
 end Adjoints
 
 #min_imports
