@@ -308,6 +308,11 @@ theorem corollary_2_3_7 {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v
     G.IsRightAdjoint ↔ ∀ A : C, HasInitial (StructuredArrow A G) :=
   isRightAdjoint_iff_hasInitial_structuredArrow
 
+theorem exercise_2_3_9 {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
+    {F : C ⥤ D} :
+    F.IsLeftAdjoint ↔ ∀ B : D, HasTerminal (CostructuredArrow F B) :=
+  isLeftAdjoint_iff_hasTerminal_costructuredArrow
+
 noncomputable def exercise_2_3_10 {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
     (e : C ≌ D) : e.functor ⊣ e.inverse :=
   e.toAdjunction
