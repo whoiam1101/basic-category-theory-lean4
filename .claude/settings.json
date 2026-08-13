@@ -24,6 +24,27 @@
       "mcp__lean-lsp__lean_profile_proof",
       "mcp__lean-lsp__lean_references",
       "mcp__lean-lsp__lean_get_widget_source",
+      "mcp__axle__check",
+      "mcp__axle__disprove",
+      "mcp__axle__extract_decls",
+      "mcp__axle__extract_proof_states",
+      "mcp__axle__extract_theorems",
+      "mcp__axle__have2lemma",
+      "mcp__axle__have2sorry",
+      "mcp__axle__highlight",
+      "mcp__axle__list_environments",
+      "mcp__axle__merge",
+      "mcp__axle__normalize",
+      "mcp__axle__read_docs",
+      "mcp__axle__read_share_url",
+      "mcp__axle__rename",
+      "mcp__axle__repair_proofs",
+      "mcp__axle__share_url",
+      "mcp__axle__simplify_theorems",
+      "mcp__axle__sorry2lemma",
+      "mcp__axle__theorem2lemma",
+      "mcp__axle__theorem2sorry",
+      "mcp__axle__verify_proof",
       "Bash(lake build *)",
       "Bash(git add *)",
       "Bash(git commit *)",
@@ -34,7 +55,9 @@
       "Bash(find *)",
       "Bash(pdftotext *)",
       "Read(*)",
-      "WebSearch"
+      "WebSearch",
+      "Read(~/.elan/**)",
+      "Read(~/Documents/loogle/**)"
     ],
     "deny": [
       "Edit(**/LICENSE)",
@@ -57,6 +80,44 @@
       "lean4:prove",
       "lean4:refactor",
       "lean4:review"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-$PWD}/.claude/hooks/check-lean-edit.sh\"",
+            "timeout": 30,
+            "statusMessage": "Checking Lean edit for forbidden terms"
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-$PWD}/.claude/hooks/check-read-path.sh\"",
+            "timeout": 30,
+            "statusMessage": "Checking read path"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-$PWD}/.claude/hooks/check-commit.sh\"",
+            "timeout": 60,
+            "if": "Bash(git *)",
+            "statusMessage": "Checking verification stamp before git commit"
+          }
+        ]
+      }
     ]
   }
 }

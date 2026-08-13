@@ -2,7 +2,13 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Samvel Safaryan <samvelsafaryan1313@gmail.com>
 
-import Mathlib
+import Mathlib.Algebra.Category.ModuleCat.Basic
+import Mathlib.Algebra.Category.Ring.Basic
+import Mathlib.Analysis.SpecialFunctions.Complex.Circle
+import Mathlib.CategoryTheory.ConcreteCategory.EpiMono
+import Mathlib.CategoryTheory.SingleObj
+import Mathlib.Combinatorics.Quiver.ReflQuiver
+import Mathlib.Topology.Category.TopCat.Basic
 
 namespace Categories
 
@@ -94,8 +100,7 @@ abbrev example_1_1_11_product (C : Type u) [Category.{v} C] (D : Type u') [Categ
     Category (C × D) := inferInstance
 
 theorem exercise_1_1_13 (C : Type u) [Category.{v} C] {A B : C} (f : A ⟶ B) (g h : B ⟶ A)
-    (hgf : f ≫ g = 𝟙 A) (hfg : g ≫ f = 𝟙 B)
-    (hhf : f ≫ h = 𝟙 A) (hfh : h ≫ f = 𝟙 B) : g = h :=
+    (hgf : f ≫ g = 𝟙 A) (hfh : h ≫ f = 𝟙 B) : g = h :=
   calc
     g = 𝟙 B ≫ g := by rw [Category.id_comp]
     _ = (h ≫ f) ≫ g := by rw [← hfh]
@@ -112,5 +117,3 @@ theorem exercise_1_1_14_id (C : Type u) [Category.{v} C] (D : Type u') [Category
     (A : C) (A' : D) : 𝟙 (A, A') = Prod.mkHom (𝟙 A) (𝟙 A') := rfl
 
 end Categories
-
-#min_imports

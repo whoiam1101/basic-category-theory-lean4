@@ -2,7 +2,11 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Samvel Safaryan <samvelsafaryan1313@gmail.com>
 
-import Mathlib
+import Mathlib.CategoryTheory.Adjunction.Basic
+import Mathlib.CategoryTheory.ConnectedComponents
+import Mathlib.Combinatorics.Quiver.ReflQuiver
+import Mathlib.Order.CompletePartialOrder
+import Mathlib.SetTheory.Cardinal.Order
 
 namespace Chapter3
 
@@ -37,14 +41,14 @@ theorem proposition_3_2_4 (I : Type u) (A : I → Type u) :
   intro ⟨e⟩
   exact (ne_of_lt h_lt') (Cardinal.eq.mpr ⟨e⟩)
 
-abbrev def_3_2_8 := CategoryTheory.Cat
+abbrev def_3_2_10 := CategoryTheory.Cat
 
-theorem exercise_3_2_16a {A : Type u} (θ : Set A → Set A) (hθ : Monotone θ) :
+theorem exercise_3_2_12a {A : Type u} (θ : Set A → Set A) (hθ : Monotone θ) :
     ∃ S : Set A, θ S = S := by
   let f : Set A →o Set A := ⟨θ, hθ⟩
   exact ⟨f.lfp, f.map_lfp⟩
 
-theorem exercise_3_2_16b {A B : Type u} (f : A → B) (g : B → A) :
+theorem exercise_3_2_12b {A B : Type u} (f : A → B) (g : B → A) :
     ∃ S : Set A, g '' (Set.univ \ f '' S) = Sᶜ := by
   classical
   let θ : Set A → Set A := fun T => (g '' (Set.univ \ f '' T))ᶜ
@@ -52,16 +56,16 @@ theorem exercise_3_2_16b {A B : Type u} (f : A → B) (g : B → A) :
     intro T T' hTT'
     exact Set.compl_subset_compl.mpr
       (Set.image_mono (Set.diff_subset_diff_right (Set.image_mono hTT')))
-  rcases exercise_3_2_16a θ hθ with ⟨S, hS⟩
+  rcases exercise_3_2_12a θ hθ with ⟨S, hS⟩
   refine ⟨S, ?_⟩
   conv_rhs => rw [hS.symm]
   dsimp [θ]
   rw [compl_compl]
 
-theorem exercise_3_2_16c {A B : Type u} (f : A → B) (g : B → A)
+theorem exercise_3_2_12c {A B : Type u} (f : A → B) (g : B → A)
     (hf : Function.Injective f) (hg : Function.Injective g) : Nonempty (A ≃ B) := by
   classical
-  rcases exercise_3_2_16b f g with ⟨S, hS⟩
+  rcases exercise_3_2_12b f g with ⟨S, hS⟩
   have h_wit (a : A) (ha : a ∉ S) : ∃ b : B, b ∉ f '' S ∧ g b = a := by
     have : a ∈ g '' (Set.univ \ f '' S) := by
       rw [hS]
@@ -119,14 +123,14 @@ theorem exercise_3_2_16c {A B : Type u} (f : A → B) (g : B → A)
       exact hg hc
   exact ⟨Equiv.ofBijective h ⟨h_inj, h_surj⟩⟩
 
-theorem exercise_3_2_17a {A : Type u} (f : A → Set A) : ¬ Function.Surjective f :=
+theorem exercise_3_2_13a {A : Type u} (f : A → Set A) : ¬ Function.Surjective f :=
   Function.cantor_surjective f
 
-theorem exercise_3_2_17b (A : Type u) : Cardinal.mk A < Cardinal.mk (Set A) := by
+theorem exercise_3_2_13b (A : Type u) : Cardinal.mk A < Cardinal.mk (Set A) := by
   rw [Cardinal.mk_set]
   exact Cardinal.cantor _
 
-lemma exercise_3_2_18a_unit_injective {C : Type u} [Category.{v} C] {U : C ⥤ Type w}
+lemma exercise_3_2_14a_unit_injective {C : Type u} [Category.{v} C] {U : C ⥤ Type w}
     (F : Type w ⥤ C) (adj : F ⊣ U) {A₀ : C} {x y : U.obj A₀} (hxy : x ≠ y) :
     ∀ S : Type w, Function.Injective ((adj.unit.app S : S → U.obj (F.obj S))) := by
   classical
@@ -157,7 +161,7 @@ lemma exercise_3_2_18a_unit_injective {C : Type u} [Category.{v} C] {U : C ⥤ T
     rw [← hfa, ← hfb, congrFun h_factor a, congrFun h_factor b, h]
   exact hxy this
 
-theorem exercise_3_2_18a {C : Type u} [Category.{v} C] {U : C ⥤ Type w}
+theorem exercise_3_2_14a {C : Type u} [Category.{v} C] {U : C ⥤ Type w}
     (F : Type w ⥤ C) (adj : F ⊣ U) {A₀ : C} {x y : U.obj A₀} (hxy : x ≠ y) :
     ∀ (I : Type w) (A : I → C), ∃ W : C, ∀ i : I, ¬ Nonempty (A i ≅ W) := by
   classical
@@ -176,7 +180,7 @@ theorem exercise_3_2_18a {C : Type u} [Category.{v} C] {U : C ⥤ Type w}
     exact Cardinal.cantor _
   have h_le2 : Cardinal.mk (Set (Σ j : I, U.obj (A j))) ≤ Cardinal.mk (U.obj (F.obj S)) := by
     apply Cardinal.mk_le_of_injective
-    exact exercise_3_2_18a_unit_injective F adj hxy S
+    exact exercise_3_2_14a_unit_injective F adj hxy S
   have h_lt' : Cardinal.mk (U.obj (A i)) < Cardinal.mk (U.obj (F.obj S)) :=
     h_le.trans_lt (h_lt.trans_le h_le2)
   intro ⟨e⟩
@@ -339,21 +343,21 @@ noncomputable def adj_objects_indiscrete : Cat.objects ⊣ indiscreteCat :=
           change Indiscrete.of ((f ≫ g) c) = Indiscrete.of (g (f c))
           simp }
 
-abbrev exercise_3_2_21_C := catConnectedComponents
+abbrev exercise_3_2_16_C := catConnectedComponents
 
-abbrev exercise_3_2_21_D := typeToCat
+abbrev exercise_3_2_16_D := typeToCat
 
-abbrev exercise_3_2_21_O := Cat.objects
+abbrev exercise_3_2_16_O := Cat.objects
 
-abbrev exercise_3_2_21_I := indiscreteCat
+abbrev exercise_3_2_16_I := indiscreteCat
 
-noncomputable def exercise_3_2_21_C_adj_D : exercise_3_2_21_C ⊣ exercise_3_2_21_D :=
+noncomputable def exercise_3_2_16_C_adj_D : exercise_3_2_16_C ⊣ exercise_3_2_16_D :=
   adj_catConnectedComponents_typeToCat
 
-noncomputable def exercise_3_2_21_D_adj_O : exercise_3_2_21_D ⊣ exercise_3_2_21_O :=
+noncomputable def exercise_3_2_16_D_adj_O : exercise_3_2_16_D ⊣ exercise_3_2_16_O :=
   adj_typeToCat_objects
 
-noncomputable def exercise_3_2_21_O_adj_I : exercise_3_2_21_O ⊣ exercise_3_2_21_I :=
+noncomputable def exercise_3_2_16_O_adj_I : exercise_3_2_16_O ⊣ exercise_3_2_16_I :=
   adj_objects_indiscrete
 
 end Chapter3

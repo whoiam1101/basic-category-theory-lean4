@@ -102,6 +102,27 @@ lake env ~/loogle/.lake/build/bin/loogle \
 
 Pattern syntax: `_` matches any subexpression, `?a`/`?b` are type variables (same name = same type), `"substring"` matches names, `Foo, Bar` = must mention both, `|- ...` matches the conclusion.
 
+## Verification with AXLE
+
+[AXLE](https://axle.axiommath.ai/) (Axiom Lean Engine) is an external service that checks Lean code in an isolated environment and independently validates proofs. It is wired into this project as the [`axiom-axle-mcp`](https://pypi.org/project/axiom-axle-mcp/) MCP server (see `.mcp.json`); the API key lives in `.env` (`AXLE_API_KEY`, template in `.env.example`).
+
+### Axiom checking
+
+The central guarantee of this formalization is that **every theorem is a real proof**: no `sorry`/`admit`, and no custom `axiom` declarations — only the standard axioms of Lean and mathlib are used. AXLE enforces this independently of the local toolchain: every `check`/`verify_proof` request reports `failed_declarations` — the list of declarations that fail validation, namely those that
+
+- do not compile,
+- are incomplete (`sorry`, open goals),
+- use an `unsafe` function, or
+- depend on an axiom outside the allowed set of standard axioms — reported as `Axiom '{axiom}' is not in the allowed set of standard axioms`.
+
+A file passes AXLE validation iff `okay` is `true` **and** `failed_declarations` is empty (plain `okay` only means the code compiles). For example:
+
+- `check` — compile a snippet/file and list `failed_declarations` (fast, no formal statement needed);
+- `verify_proof` — check that a candidate proof actually proves a given formal statement (with the same axiom/sorry validation);
+- `disprove` — attempt to prove the negation of a statement (counterexample search).
+
+The same `failed_declarations` axiom check is available via the Python API (`result.okay and not result.failed_declarations`), the CLI (`axle check file.lean --strict`), and the HTTP API. `verify_proof` also accepts `permitted_sorries` to whitelist specific axioms (e.g. the `native_decide`-related ones); this project does not use `native_decide`, so the strict default applies. Locally, the equivalent hard checks are enforced by the git hooks in `.claude/hooks/` (`check-lean-edit.sh`, `check-commit.sh`, `stamp-verification.sh`).
+
 ## License
 
 This project's code (the Lean formalization in `BasicCategoryTheory/`) is licensed under the [Apache 2.0 License](LICENSE).

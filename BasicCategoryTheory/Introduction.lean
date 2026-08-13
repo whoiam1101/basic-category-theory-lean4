@@ -82,7 +82,7 @@ theorem lemma_0_7
     (b : U →ₗ[k] (V →ₗ[k] T)) (b' : U →ₗ[k] (V →ₗ[k] T'))
     (h : IsUniversalBilinearMap k U V T b)
     (h' : IsUniversalBilinearMap k U V T' b') :
-    Nonempty (T ≃ₗ[k] T') := by
+    ∃! j : T ≃ₗ[k] T', ∀ u v, j (b u v) = b' u v := by
   let φ := Classical.choose <| h T' b'
   have hφ := Classical.choose_spec <| h T' b'
   let ψ := Classical.choose <| h' T b
@@ -95,7 +95,12 @@ theorem lemma_0_7
     have huniq := (Classical.choose_spec (h T b)).2
     (huniq (ψ.comp φ) fun u v => (congr_arg ψ (hφ.1 u v)).trans (hψ.1 u v)).trans
       (huniq LinearMap.id fun _ _ => rfl).symm
-  exact Nonempty.intro <| LinearEquiv.ofLinear φ ψ h₁ h₂
+  refine ⟨LinearEquiv.ofLinear φ ψ h₁ h₂, ?_, ?_⟩
+  · intro u v
+    simpa using hφ.1 u v
+  · intro j hj
+    have h_j_lin : (j : T →ₗ[k] T') = φ := (Classical.choose_spec (h T' b')).2 j hj
+    exact LinearEquiv.ext fun x => congrArg (fun (f : T →ₗ[k] T') => f x) h_j_lin
 
 theorem example_0_8 {G H : Type*} [Group G] [Group H] (θ : G →* H) :
     let ι : θ.ker →* G := θ.ker.subtype
@@ -160,7 +165,7 @@ theorem exercise_0_10 (S : Type*) (X : Type*) [TopologicalSpace X] :
     ∀ (f : X → S), ∃! (g : C(X, S)), (g : X → S) = f :=
   fun f => ⟨@ContinuousMap.mk X S ‹_› ⊤ f continuous_top, rfl, by exact fun g hg => hg ▸ rfl⟩
 
-theorem example_0_11 {G H : Type*} [Group G] [Group H] (θ : G →* H) :
+theorem exercise_0_11 {G H : Type*} [Group G] [Group H] (θ : G →* H) :
     let ι : θ.ker →* G := θ.ker.subtype
     let ε : G →* H := 1
     (∀ x : θ.ker, θ (ι x) = ε (ι x)) ∧
@@ -169,7 +174,7 @@ theorem example_0_11 {G H : Type*} [Group G] [Group H] (θ : G →* H) :
       ∃! f' : X →* θ.ker, ∀ x, ι (f' x) = f x := example_0_8 θ
 
 open Classical in
-theorem example_0_12 {X : Type*} [TopologicalSpace X] (U V : Set X)
+theorem exercise_0_12 {X : Type*} [TopologicalSpace X] (U V : Set X)
     (hU : IsOpen U) (hV : IsOpen V) (h_cov : U ∪ V = Set.univ) :
     let i := inclusionMap (@Set.inter_subset_left X U V)
     let j := inclusionMap (@Set.inter_subset_right X U V)
@@ -243,7 +248,7 @@ theorem exercise_0_14_a {k : Type*} [Semiring k]
       · exact LinearMap.congr_fun hf.1 x
       · exact LinearMap.congr_fun hf.2 x
 
-theorem exercise_14_b {k : Type*} [Semiring k]
+theorem exercise_0_14_b {k : Type*} [Semiring k]
     {X : Type u} [AddCommMonoid X] [Module k X]
     {Y : Type v} [AddCommMonoid Y] [Module k Y]
     {P : Type (max u v)} [AddCommMonoid P] [Module k P]
@@ -306,7 +311,7 @@ theorem exercise_0_14_c {k : Type*} [Semiring k]
       · exact LinearMap.congr_fun (hf.1.trans (LinearMap.coprod_inl f₁ f₂).symm) x
       · exact LinearMap.congr_fun (hf.2.trans (LinearMap.coprod_inr f₁ f₂).symm) x
 
-theorem exercise_14_d {k : Type*} [Semiring k]
+theorem exercise_0_14_d {k : Type*} [Semiring k]
     {X : Type u} [AddCommMonoid X] [Module k X]
     {Y : Type v} [AddCommMonoid Y] [Module k Y]
     {Q : Type (max u v)} [AddCommMonoid Q] [Module k Q]
@@ -347,5 +352,3 @@ theorem exercise_14_d {k : Type*} [Semiring k]
   exact ⟨LinearEquiv.ofLinear ψ φ hψφ hφψ, ⟨hψ₁, hψ₂⟩⟩
 
 end Introduction
-
-#min_imports

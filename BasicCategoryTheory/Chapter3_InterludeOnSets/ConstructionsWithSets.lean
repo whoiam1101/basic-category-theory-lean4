@@ -2,7 +2,9 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Samvel Safaryan <samvelsafaryan1313@gmail.com>
 
-import Mathlib
+import Mathlib.CategoryTheory.Limits.Types.Coproducts
+import Mathlib.CategoryTheory.Limits.Types.Products
+import Mathlib.Combinatorics.Quiver.ReflQuiver
 
 namespace Chapter3
 
@@ -91,10 +93,10 @@ theorem setprop_choice {A B : Type u} (f : A → B) :
     Function.Surjective f ↔ Function.HasRightInverse f :=
   Function.surjective_iff_hasRightInverse
 
-def exercise_3_1_25_diagonal : Type u ⥤ Type u × Type u :=
+def exercise_3_1_1_diagonal : Type u ⥤ Type u × Type u :=
   Functor.diag (Type u)
 
-def exercise_3_1_25_sum : (Type u × Type u) ⥤ Type u where
+def exercise_3_1_1_sum : (Type u × Type u) ⥤ Type u where
   obj := fun X => X.1 ⊕ X.2
   map := fun f => TypeCat.ofHom (Sum.map f.1 f.2)
   map_id := by
@@ -106,7 +108,7 @@ def exercise_3_1_25_sum : (Type u × Type u) ⥤ Type u where
     ext x
     cases x <;> rfl
 
-def exercise_3_1_25_prod : (Type u × Type u) ⥤ Type u where
+def exercise_3_1_1_prod : (Type u × Type u) ⥤ Type u where
   obj := fun X => X.1 × X.2
   map := fun f => TypeCat.ofHom (Prod.map f.1 f.2)
   map_id := by
@@ -116,13 +118,13 @@ def exercise_3_1_25_prod : (Type u × Type u) ⥤ Type u where
     intro X Y Z f g
     ext x <;> rcases x with ⟨a, b⟩ <;> rfl
 
-def exercise_3_1_25_left_adj : exercise_3_1_25_sum ⊣ exercise_3_1_25_diagonal :=
+def exercise_3_1_1_left_adj : exercise_3_1_1_sum ⊣ exercise_3_1_1_diagonal :=
   Adjunction.mkOfUnitCounit
     { unit :=
         { app := fun X => (TypeCat.ofHom Sum.inl, TypeCat.ofHom Sum.inr)
           naturality := by
             intro X Y f
-            ext a <;> simp [exercise_3_1_25_diagonal, Functor.diag, exercise_3_1_25_sum] }
+            ext a <;> simp [exercise_3_1_1_diagonal, Functor.diag, exercise_3_1_1_sum] }
       counit :=
         { app := fun X => TypeCat.ofHom (Sum.elim id id)
           naturality := by
@@ -131,33 +133,33 @@ def exercise_3_1_25_left_adj : exercise_3_1_25_sum ⊣ exercise_3_1_25_diagonal 
             cases x <;> rfl }
       left_triangle := by
         ext X x
-        simp [exercise_3_1_25_diagonal, Functor.diag, exercise_3_1_25_sum]
+        simp [exercise_3_1_1_diagonal, Functor.diag, exercise_3_1_1_sum]
         cases x <;> rfl
       right_triangle := by
         ext X x <;> dsimp [Functor.whiskerLeft, Functor.whiskerRight, Functor.associator] <;>
-          simp [exercise_3_1_25_diagonal, Functor.diag, exercise_3_1_25_sum] <;> rfl }
+          simp [exercise_3_1_1_diagonal, Functor.diag, exercise_3_1_1_sum] <;> rfl }
 
-def exercise_3_1_25_right_adj : exercise_3_1_25_diagonal ⊣ exercise_3_1_25_prod :=
+def exercise_3_1_1_right_adj : exercise_3_1_1_diagonal ⊣ exercise_3_1_1_prod :=
   Adjunction.mkOfUnitCounit
     { unit :=
         { app := fun X => TypeCat.ofHom (fun x : X => (x, x))
           naturality := by
             intro X Y f
             ext x
-            dsimp [exercise_3_1_25_diagonal, Functor.diag, exercise_3_1_25_prod] }
+            dsimp [exercise_3_1_1_diagonal, Functor.diag, exercise_3_1_1_prod] }
       counit :=
         { app := fun X => (TypeCat.ofHom Prod.fst, TypeCat.ofHom Prod.snd)
           naturality := by
             intro X Y f
             ext a <;> rcases a with ⟨u, v⟩ <;>
-              dsimp [exercise_3_1_25_diagonal, Functor.diag, exercise_3_1_25_prod] }
+              dsimp [exercise_3_1_1_diagonal, Functor.diag, exercise_3_1_1_prod] }
       left_triangle := by
         ext X x <;> dsimp [Functor.whiskerRight, Functor.whiskerLeft, Functor.associator] <;>
-          simp [exercise_3_1_25_diagonal, Functor.diag, exercise_3_1_25_prod] <;> rfl
+          simp [exercise_3_1_1_diagonal, Functor.diag, exercise_3_1_1_prod] <;> rfl
       right_triangle := by
         ext X x
         dsimp [Functor.whiskerLeft, Functor.whiskerRight, Functor.associator]
-        simp [exercise_3_1_25_diagonal, Functor.diag, exercise_3_1_25_prod]
+        simp [exercise_3_1_1_diagonal, Functor.diag, exercise_3_1_1_prod]
         rfl }
 
 structure NatNumberObject : Type (u + 1) where
@@ -190,7 +192,7 @@ instance : Category NatNumberObject where
 def naturalNumberObjectHom (Y : NatNumberObject) : (⟨ℕ, 0, Nat.succ⟩ : NatNumberObject) ⟶ Y :=
   ⟨Nat.rec Y.point (fun _ x => Y.step x), rfl, fun _ => rfl⟩
 
-def exercise_3_1_26 : IsInitial (⟨ℕ, 0, Nat.succ⟩ : NatNumberObject) := by
+def exercise_3_1_2 : IsInitial (⟨ℕ, 0, Nat.succ⟩ : NatNumberObject) := by
   refine IsColimit.mk (t := asEmptyCocone (⟨ℕ, 0, Nat.succ⟩ : NatNumberObject))
     (fun s => naturalNumberObjectHom s.pt) ?_ ?_
   · intro s j

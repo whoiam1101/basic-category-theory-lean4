@@ -2,7 +2,13 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Samvel Safaryan <samvelsafaryan1313@gmail.com>
 
-import Mathlib
+import Mathlib.Algebra.Category.Grp.Adjunctions
+import Mathlib.Algebra.Category.ModuleCat.Adjunctions
+import Mathlib.CategoryTheory.Adjunction.Whiskering
+import Mathlib.CategoryTheory.Category.PartialFun
+import Mathlib.CategoryTheory.Monoidal.Closed.Types
+import Mathlib.Combinatorics.Quiver.ReflQuiver
+import Mathlib.Topology.Category.TopCat.Adjunctions
 
 namespace Adjoints
 
@@ -45,20 +51,75 @@ abbrev def_2_1_7_initial {C : Type u} [Category.{v} C] (I : C) := IsInitial I
 
 abbrev def_2_1_7_terminal {C : Type u} [Category.{v} C] (T : C) := IsTerminal T
 
-def lemma_2_1_8_initial {C : Type u} [Category.{v} C] {I I' : C}
-    (hI : IsInitial I) (hI' : IsInitial I') : I ≅ I' :=
-  hI.uniqueUpToIso hI'
+theorem lemma_2_1_8_initial {C : Type u} [Category.{v} C] {I I' : C}
+    (hI : IsInitial I) (hI' : IsInitial I') : ∃! e : I ≅ I', e = e := by
+  refine ⟨hI.uniqueUpToIso hI', rfl, fun e _ => ?_⟩
+  apply Iso.ext
+  exact hI.hom_ext e.hom (hI.uniqueUpToIso hI').hom
 
 def lemma_2_1_8_terminal {C : Type u} [Category.{v} C] {T T' : C}
     (hT : IsTerminal T) (hT' : IsTerminal T') : T ≅ T' :=
   hT.uniqueUpToIso hT'
+
+theorem example_2_1_9_initial {C : Type u} [Category.{v} C] (I : C) :
+    Nonempty (Functor.fromPUnit.{u, v, u} I ⊣ Functor.star.{u, v, u} C) ↔
+      Nonempty (IsInitial I) := by
+  constructor
+  · intro adj
+    rcases adj with ⟨adj⟩
+    letI : ∀ Y : C, Unique (I ⟶ Y) := fun Y =>
+      { default := (adj.homEquiv ⟨PUnit.unit⟩ Y).invFun (ULift.up (PLift.up (by simp)))
+        uniq := fun f => (adj.homEquiv ⟨PUnit.unit⟩ Y).injective (Subsingleton.elim _ _) }
+    exact ⟨IsInitial.ofUnique I⟩
+  · intro hI
+    rcases hI with ⟨hI⟩
+    exact ⟨Adjunction.mkOfHomEquiv
+      { homEquiv := fun X Y =>
+          { toFun := fun _ => ULift.up (PLift.up (by simp))
+            invFun := fun _ => hI.to Y
+            left_inv := by intro f; exact hI.hom_ext _ _
+            right_inv := by intro f; apply Subsingleton.elim }
+        homEquiv_naturality_left_symm := by
+          intro X' X Y f g
+          exact hI.hom_ext _ _
+        homEquiv_naturality_right := by
+          intro X Y Y' f g
+          apply Subsingleton.elim }⟩
+
+theorem example_2_1_9_terminal {C : Type u} [Category.{v} C] (T : C) :
+    Nonempty (Functor.star.{u, v, u} C ⊣ Functor.fromPUnit.{u, v, u} T) ↔
+      Nonempty (IsTerminal T) := by
+  constructor
+  · intro adj
+    rcases adj with ⟨adj⟩
+    letI : ∀ X : C, Unique (X ⟶ T) := fun X =>
+      let d : X ⟶ T := (adj.homEquiv X ⟨PUnit.unit⟩).toFun (ULift.up (PLift.up (by simp)))
+      { default := d
+        uniq := fun f => (adj.homEquiv X ⟨PUnit.unit⟩).symm.injective
+          (Subsingleton.elim ((adj.homEquiv X ⟨PUnit.unit⟩).symm f)
+            ((adj.homEquiv X ⟨PUnit.unit⟩).symm d)) }
+    exact ⟨IsTerminal.ofUnique T⟩
+  · intro hT
+    rcases hT with ⟨hT⟩
+    exact ⟨Adjunction.mkOfHomEquiv
+      { homEquiv := fun X Y =>
+          { toFun := fun _ => hT.from X
+            invFun := fun _ => ULift.up (PLift.up (by simp))
+            left_inv := by intro f; apply Subsingleton.elim
+            right_inv := by intro f; exact hT.hom_ext _ _ }
+        homEquiv_naturality_left_symm := by
+          intro X' X Y f g
+          apply Subsingleton.elim
+        homEquiv_naturality_right := by
+          intro X Y Y' f g
+          exact hT.hom_ext _ _ }⟩
 
 def adjunction_comp {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
     {E : Type u} [Category.{v} E] {F : C ⥤ D} {G : D ⥤ C} {H : D ⥤ E} {I : E ⥤ D}
     (adj₁ : F ⊣ G) (adj₂ : H ⊣ I) : F ⋙ H ⊣ I ⋙ G :=
   adj₁.comp adj₂
 
-theorem exercise_2_1_12 {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
+theorem exercise_2_1_14 {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
     {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) :
     ((∀ {A : C} {B B' : D} (g : F.obj A ⟶ B) (q : B ⟶ B'),
       adj.homEquiv A B' (g ≫ q) = adj.homEquiv A B g ≫ G.map q) ∧
@@ -88,7 +149,7 @@ theorem exercise_2_1_12 {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v
       have h := h_single p f (𝟙 B)
       simpa using h
 
-noncomputable def exercise_2_1_13_left {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
+noncomputable def exercise_2_1_15_left {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
     {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) {I : C} (hI : IsInitial I) : IsInitial (F.obj I) := by
   haveI : ∀ Y : D, Unique ((F.obj I) ⟶ Y) := by
     intro Y
@@ -100,7 +161,7 @@ noncomputable def exercise_2_1_13_left {C : Type u} [Category.{v} C] {D : Type u
     rw [this, Equiv.apply_symm_apply]
   exact IsInitial.ofUnique (F.obj I)
 
-noncomputable def exercise_2_1_13_right {C : Type u} [Category.{v} C] {D : Type u'}
+noncomputable def exercise_2_1_15_right {C : Type u} [Category.{v} C] {D : Type u'}
     [Category.{v'} D] {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) {T : D}
     (hT : IsTerminal T) : IsTerminal (G.obj T) := by
   haveI : ∀ X : C, Unique (X ⟶ G.obj T) := by
@@ -112,6 +173,24 @@ noncomputable def exercise_2_1_13_right {C : Type u} [Category.{v} C] {D : Type 
     have : (adj.homEquiv X T).symm f = hT.from (F.obj X) := hT.hom_ext _ _
     rw [this, Equiv.symm_apply_apply]
   exact IsTerminal.ofUnique (G.obj T)
+
+theorem example_2_2_1_unit (k : Type u) [Field k] (S : Type u) (s : S) :
+    (example_2_1_3b k).unit.app S s = Finsupp.single s 1 := by
+  change (ModuleCat.freeHomEquiv (𝟙 ((ModuleCat.free k).obj S))) s = Finsupp.single s 1
+  rfl
+
+theorem example_2_2_1_counit (k : Type u) [Field k] (M : ModuleCat.{u} k)
+    (g : (forget (ModuleCat.{u} k)).obj M →₀ k) :
+    (example_2_1_3b k).counit.app M g = g.sum (fun v r => r • v) := by
+  let A : Type u := (forget (ModuleCat.{u} k)).obj M
+  have hc : (example_2_1_3b k).counit.app M =
+      ((example_2_1_3b k).homEquiv A M).symm (𝟙 A) := by
+    rw [Adjunction.homEquiv_counit]
+    simp
+  rw [hc, ModuleCat.adj_homEquiv]
+  change ((Finsupp.lift M k A (↾(𝟙 A))) g) = g.sum (fun v r => r • v)
+  rw [Finsupp.lift_apply]
+  rfl
 
 lemma lemma_2_2_2_left_triangle {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
     {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) (A : C) :
@@ -149,6 +228,34 @@ theorem corollary_2_2_6 {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v
   · intro h; rcases h with ⟨adj⟩; exact ⟨theorem_2_2_5_forward adj⟩
   · intro h; rcases h with ⟨c⟩; exact ⟨theorem_2_2_5_reverse c⟩
 
+theorem example_2_2_7_left {A B : Type u} [PartialOrder A] [PartialOrder B] (f : A → B) (g : B → A)
+    (hf : Monotone f) (hadj : ∀ a b, f a ≤ b ↔ a ≤ g b) (a : A) :
+    f (g (f a)) = f a := by
+  have h₁ : ∀ a, a ≤ g (f a) := fun a => (hadj a (f a)).mp (le_refl (f a))
+  have h₂ : ∀ b, f (g b) ≤ b := fun b => (hadj (g b) b).mpr (le_refl (g b))
+  apply le_antisymm
+  · exact h₂ (f a)
+  · exact hf (h₁ a)
+
+theorem example_2_2_7_right {A B : Type u} [PartialOrder A] [PartialOrder B] (f : A → B) (g : B → A)
+    (hg : Monotone g) (hadj : ∀ a b, f a ≤ b ↔ a ≤ g b) (b : B) :
+    g (f (g b)) = g b := by
+  have h₁ : ∀ a, a ≤ g (f a) := fun a => (hadj a (f a)).mp (le_refl (f a))
+  have h₂ : ∀ b, f (g b) ≤ b := fun b => (hadj (g b) b).mpr (le_refl (g b))
+  apply le_antisymm
+  · exact hg (h₂ b)
+  · exact h₁ (g b)
+
+theorem example_2_2_7_fixed_points {A B : Type u} [PartialOrder A] [PartialOrder B]
+    (f : A → B) (g : B → A) (hf : Monotone f) (hg : Monotone g)
+    (hadj : ∀ a b, f a ≤ b ↔ a ≤ g b) :
+    Nonempty ({a : A // g (f a) = a} ≃ {b : B // f (g b) = b}) := by
+  exact
+    ⟨{ toFun := fun a => ⟨f a.1, example_2_2_7_left f g hf hadj a.1⟩,
+       invFun := fun b => ⟨g b.1, example_2_2_7_right f g hg hadj b.1⟩,
+       left_inv := fun a => Subtype.ext a.2,
+       right_inv := fun b => Subtype.ext b.2 }⟩
+
 theorem exercise_2_2_10 {A B : Type u} [Preorder A] [Preorder B] (f : A → B) (g : B → A)
     (hf : Monotone f) (hg : Monotone g) :
     ((∀ a b, f a ≤ b ↔ a ≤ g b) ↔ (∀ a, a ≤ g (f a)) ∧ (∀ b, f (g b) ≤ b)) := by
@@ -172,7 +279,101 @@ theorem exercise_2_2_10 {A B : Type u} [Preorder A] [Preorder B] (f : A → B) (
       have hfgb_b : f (g b) ≤ b := h₂ b
       exact le_trans hfa_fgb hfgb_b
 
-theorem exercise_2_2_12a {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
+noncomputable abbrev exercise_2_2_11b_fixGF {C : Type u} [Category.{v} C] {D : Type u'}
+    [Category.{v'} D] {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) :=
+  ObjectProperty.FullSubcategory fun A : C => IsIso (adj.unit.app A)
+
+noncomputable abbrev exercise_2_2_11b_fixFG {C : Type u} [Category.{v} C] {D : Type u'}
+    [Category.{v'} D] {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) :=
+  ObjectProperty.FullSubcategory fun B : D => IsIso (adj.counit.app B)
+
+noncomputable def exercise_2_2_11b_functor {C : Type u} [Category.{v} C] {D : Type u'}
+    [Category.{v'} D] {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) :
+    exercise_2_2_11b_fixGF adj ⥤ exercise_2_2_11b_fixFG adj where
+  obj := fun ⟨A, hA⟩ =>
+    ⟨F.obj A, by
+      haveI := hA
+      exact isIso_of_hom_comp_eq_id (F.map (adj.unit.app A)) (adj.left_triangle_components A)⟩
+  map := fun f => { hom := F.map f.hom }
+  map_id := by
+    intro X
+    apply ObjectProperty.hom_ext
+    change F.map (𝟙 X.obj) = 𝟙 (F.obj X.obj)
+    exact F.map_id X.obj
+  map_comp := by
+    intro X Y Z f g
+    apply ObjectProperty.hom_ext
+    change F.map (f.hom ≫ g.hom) = F.map f.hom ≫ F.map g.hom
+    exact F.map_comp f.hom g.hom
+
+noncomputable def exercise_2_2_11b_inverse {C : Type u} [Category.{v} C] {D : Type u'}
+    [Category.{v'} D] {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) :
+    exercise_2_2_11b_fixFG adj ⥤ exercise_2_2_11b_fixGF adj where
+  obj := fun ⟨B, hB⟩ =>
+    ⟨G.obj B, by
+      haveI := hB
+      exact isIso_of_comp_hom_eq_id (G.map (adj.counit.app B)) (adj.right_triangle_components B)⟩
+  map := fun g => { hom := G.map g.hom }
+  map_id := by
+    intro X
+    apply ObjectProperty.hom_ext
+    change G.map (𝟙 X.obj) = 𝟙 (G.obj X.obj)
+    exact G.map_id X.obj
+  map_comp := by
+    intro X Y Z f g
+    apply ObjectProperty.hom_ext
+    change G.map (f.hom ≫ g.hom) = G.map f.hom ≫ G.map g.hom
+    exact G.map_comp f.hom g.hom
+
+noncomputable def exercise_2_2_11b_equiv {C : Type u} [Category.{v} C] {D : Type u'}
+    [Category.{v'} D] {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) :
+    exercise_2_2_11b_fixGF adj ≌ exercise_2_2_11b_fixFG adj where
+  functor := exercise_2_2_11b_functor adj
+  inverse := exercise_2_2_11b_inverse adj
+  unitIso := NatIso.ofComponents (fun A =>
+      letI : IsIso (adj.unit.app A.obj) := A.property
+      { hom := { hom := adj.unit.app A.obj }
+        inv := { hom := (asIso (adj.unit.app A.obj)).inv }
+        hom_inv_id := by
+          apply ObjectProperty.hom_ext
+          change adj.unit.app A.obj ≫ (asIso (adj.unit.app A.obj)).inv = 𝟙 A.obj
+          exact (asIso (adj.unit.app A.obj)).hom_inv_id
+        inv_hom_id := by
+          apply ObjectProperty.hom_ext
+          change (asIso (adj.unit.app A.obj)).inv ≫ adj.unit.app A.obj = 𝟙 (G.obj (F.obj A.obj))
+          exact (asIso (adj.unit.app A.obj)).inv_hom_id }) (by
+    intro X Y f
+    apply ObjectProperty.hom_ext
+    change (𝟭 C).map f.hom ≫ adj.unit.app Y.obj = adj.unit.app X.obj ≫ (F ⋙ G).map f.hom
+    exact adj.unit.naturality f.hom)
+  counitIso := NatIso.ofComponents (fun B =>
+      letI : IsIso (adj.counit.app B.obj) := B.property
+      { hom := { hom := adj.counit.app B.obj }
+        inv := { hom := (asIso (adj.counit.app B.obj)).inv }
+        hom_inv_id := by
+          apply ObjectProperty.hom_ext
+          change adj.counit.app B.obj ≫ (asIso (adj.counit.app B.obj)).inv = 𝟙 (F.obj (G.obj B.obj))
+          exact (asIso (adj.counit.app B.obj)).hom_inv_id
+        inv_hom_id := by
+          apply ObjectProperty.hom_ext
+          change (asIso (adj.counit.app B.obj)).inv ≫ adj.counit.app B.obj = 𝟙 B.obj
+          exact (asIso (adj.counit.app B.obj)).inv_hom_id }) (by
+    intro X Y f
+    apply ObjectProperty.hom_ext
+    change (G ⋙ F).map f.hom ≫ adj.counit.app Y.obj = adj.counit.app X.obj ≫ (𝟭 D).map f.hom
+    exact adj.counit.naturality f.hom)
+  functor_unitIso_comp := by
+    intro X
+    apply ObjectProperty.hom_ext
+    change F.map (adj.unit.app X.obj) ≫ adj.counit.app (F.obj X.obj) = 𝟙 (F.obj X.obj)
+    exact adj.left_triangle_components X.obj
+
+theorem exercise_2_2_11b {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
+    {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) :
+    Nonempty (exercise_2_2_11b_fixGF adj ≌ exercise_2_2_11b_fixFG adj) :=
+  ⟨exercise_2_2_11b_equiv adj⟩
+
+theorem exercise_2_2_12b {C : Type u} [Category.{v} C] {D : Type u'} [Category.{v'} D]
     {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G) : (G.Full ∧ G.Faithful) ↔ IsIso adj.counit := by
   constructor
   · intro ⟨hFull, hFaithful⟩
@@ -393,5 +594,3 @@ noncomputable def exercise_2_3_12_coslice : Pointed.{u} ≌ Under PUnit.{u + 1} 
     exact StructuredArrow.hom_ext _ _ (by rfl)
 
 end Adjoints
-
-#min_imports

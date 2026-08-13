@@ -1,1 +1,5 @@
 /.lake
+.claude/verification-stamp
+/downloads/
+.claude/scratch/
+.env
