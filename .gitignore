@@ -2,3 +2,4 @@
 /downloads/
 .claude/scratch/
 .env
+tmp/
