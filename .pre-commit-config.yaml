@@ -24,3 +24,10 @@ repos:
         language: script
         types: [file]
         files: \.lean$
+
+      - id: update-readme-stats
+        name: Update README statistics
+        entry: python3 scripts/update_readme_stats.py
+        language: system
+        pass_filenames: false
+        always_run: true

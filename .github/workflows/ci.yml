@@ -110,13 +110,7 @@ jobs:
 
       - name: Verify README statistics are up to date
         run: |
-          python3 scripts/update_readme_stats.py
-          if ! git diff --exit-code README.md; then
-            echo "::error::README.md formalization statistics are outdated. Run 'python3 scripts/update_readme_stats.py' and commit the changes."
-            exit 1
-          else
-            echo "✓ README.md metrics are up to date."
-          fi
+          python3 scripts/update_readme_stats.py --check
 
   build:
     name: Build Lean Project

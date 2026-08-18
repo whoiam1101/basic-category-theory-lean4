@@ -100,10 +100,13 @@ def generate_metrics_markdown(metrics, progress):
 <!-- FORMALIZATION_METRICS_END -->"""
     return table
 
-def update_readme():
+import sys
+import argparse
+
+def update_readme(check_only: bool = False) -> int:
     if not README_PATH.exists():
-        print(f"Error: {README_PATH} does not exist.")
-        return
+        print(f"Error: {README_PATH} does not exist.", file=sys.stderr)
+        return 1
 
     with open(README_PATH, "r", encoding="utf-8") as f:
         readme_content = f.read()
@@ -125,10 +128,26 @@ def update_readme():
         else:
             new_readme = readme_content + "\n\n" + metrics_md
 
+    if readme_content == new_readme:
+        print(f"✓ README.md is up to date ({metrics['total_declarations']} declarations, {metrics['loc']} LOC).")
+        return 0
+
+    if check_only:
+        print(f"✗ README.md metrics are outdated ({metrics['total_declarations']} declarations, {metrics['loc']} LOC expected).", file=sys.stderr)
+        return 1
+
     with open(README_PATH, "w", encoding="utf-8") as f:
         f.write(new_readme)
 
     print(f"✓ README.md updated successfully with {metrics['total_declarations']} declarations ({metrics['loc']} LOC).")
+    return 0
+
+def main():
+    parser = argparse.ArgumentParser(description="Update or check formalization statistics in README.md")
+    parser.add_argument("--check", action="store_true", help="Check whether README.md metrics are up to date without modifying")
+    args = parser.parse_args()
+
+    sys.exit(update_readme(check_only=args.check))
 
 if __name__ == "__main__":
-    update_readme()
+    main()
