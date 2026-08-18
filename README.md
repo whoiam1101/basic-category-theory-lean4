@@ -29,14 +29,14 @@ This repository contains a comprehensive, non-commercial formalization of Tom Le
 
 <div align="center">
 
-![Progress](https://geps.dev/progress/81?dangerColor=800000&warningColor=ff8000&successColor=00aa00)
+![Progress](https://geps.dev/progress/85?dangerColor=800000&warningColor=ff8000&successColor=00aa00)
 
 | Metric | Verified Value | Details |
 | :--- | :---: | :--- |
 | 📚 **Completed Chapters** | **5 / 6** (83%) | Ch. 1–5 fully formalized + Introduction |
-| 📑 **Checklist Items Done** | **21 / 26** (81%) | Detailed section & exercise coverage |
-| 🧮 **Formal Declarations** | **383** | `168` Theorems • `17` Lemmas • `190` Defs • `8` Instances |
-| 📝 **Lean 4 Source Lines** | **6,063 LOC** | Verified across `15` modules in `BasicCategoryTheory/` |
+| 📑 **Checklist Items Done** | **22 / 26** (85%) | Detailed section & exercise coverage |
+| 🧮 **Formal Declarations** | **408** | `175` Theorems • `17` Lemmas • `208` Defs • `8` Instances |
+| 📝 **Lean 4 Source Lines** | **6,369 LOC** | Verified across `16` modules in `BasicCategoryTheory/` |
 | 🛡️ **Incomplete Proofs (`sorry`)** | **`0`** | Zero-sorry strict kernel verification |
 | ⚖️ **Axioms Usage** | **Standard Only** | Classical logic & choice (no custom axioms) |
 | 🤖 **Automated Checks (CI)** | **Passing** | `lake build`, signed commits, secret scan & zero-sorry gates |
@@ -61,6 +61,8 @@ This repository contains a comprehensive, non-commercial formalization of Tom Le
 | **Corollary 4.3.9** | Cayley's Theorem for small categories / group actions | [`corollary_4_3_9`](BasicCategoryTheory/Chapter4_Representables/ConsequencesOfTheYonedaLemma.lean) | ✅ Verified |
 | **Lemma 5.1.35** | Monomorphisms characterized by pullback squares | [`lemma_5_1_35`](BasicCategoryTheory/Chapter5_Limits/LimitsAndExamples.lean) | ✅ Verified |
 | **Lemma 5.3.6** | Creation of limits implies preservation of limits | [`lemma_5_3_6_preservesLimits`](BasicCategoryTheory/Chapter5_Limits/InteractionsBetweenFunctorsAndLimits.lean) | ✅ Verified |
+| **Proposition 6.1.1** | Limits as representations of the cone functor ($\operatorname{Cone}(-, D) \cong \cat{A}(-, \lim D)$) | [`proposition_6_1_1_cone_iso_hom`](BasicCategoryTheory/Chapter6_AdjointsRepresentablesAndLimits/LimitsInTermsOfRepresentablesAndAdjoints.lean) | ✅ Verified |
+| **Proposition 6.1.4** | Limit functor as right adjoint to diagonal functor ($\Delta \dashv \lim$) | [`proposition_6_1_4_adjunction`](BasicCategoryTheory/Chapter6_AdjointsRepresentablesAndLimits/LimitsInTermsOfRepresentablesAndAdjoints.lean) | ✅ Verified |
 
 ---
 
@@ -90,7 +92,7 @@ The formalization maps precisely to the table of contents of Tom Leinster's *Bas
   - [x] **5.2** Colimits: definition and examples
   - [x] **5.3** Interactions between functors and limits
 - [ ] **6. Adjoints, representables and limits**
-  - [ ] **6.1** Limits in terms of representables and adjoints
+  - [x] **6.1** Limits in terms of representables and adjoints
   - [ ] **6.2** Limits and colimits of presheaves
   - [ ] **6.3** Interactions between adjoint functors and limits
 - [ ] **Appendix: Proof of the general adjoint functor theorem (GAFT)**
