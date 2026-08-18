@@ -1,123 +1,41 @@
 {
   "permissions": {
     "allow": [
-      "mcp__lean-lsp__lean_local_search",
-      "mcp__lean-lsp__lean_diagnostic_messages",
-      "mcp__lean-lsp__lean_loogle",
-      "mcp__lean-lsp__lean_leansearch",
-      "mcp__lean-lsp__lean_hover_info",
-      "mcp__lean-lsp__lean_goal",
-      "mcp__lean-lsp__lean_run_code",
-      "mcp__lean-lsp__lean_code_actions",
-      "mcp__lean-lsp__lean_completions",
-      "mcp__lean-lsp__lean_declaration_file",
-      "mcp__lean-lsp__lean_file_outline",
-      "mcp__lean-lsp__lean_multi_attempt",
-      "mcp__lean-lsp__lean_term_goal",
-      "mcp__lean-lsp__lean_verify",
-      "mcp__lean-lsp__lean_minimal_hypotheses",
-      "mcp__lean-lsp__lean_leanfinder",
-      "mcp__lean-lsp__lean_state_search",
-      "mcp__lean-lsp__lean_build",
-      "mcp__lean-lsp__lean_get_widgets",
-      "mcp__lean-lsp__lean_hammer_premise",
-      "mcp__lean-lsp__lean_profile_proof",
-      "mcp__lean-lsp__lean_references",
-      "mcp__lean-lsp__lean_get_widget_source",
-      "mcp__axle__check",
-      "mcp__axle__disprove",
-      "mcp__axle__extract_decls",
-      "mcp__axle__extract_proof_states",
-      "mcp__axle__extract_theorems",
-      "mcp__axle__have2lemma",
-      "mcp__axle__have2sorry",
-      "mcp__axle__highlight",
-      "mcp__axle__list_environments",
-      "mcp__axle__merge",
-      "mcp__axle__normalize",
-      "mcp__axle__read_docs",
-      "mcp__axle__read_share_url",
-      "mcp__axle__rename",
-      "mcp__axle__repair_proofs",
-      "mcp__axle__share_url",
-      "mcp__axle__simplify_theorems",
-      "mcp__axle__sorry2lemma",
-      "mcp__axle__theorem2lemma",
-      "mcp__axle__theorem2sorry",
-      "mcp__axle__verify_proof",
-      "Bash(lake build *)",
-      "Bash(git add *)",
-      "Bash(git commit *)",
-      "Bash(git status)",
-      "Bash(git log *)",
-      "Bash(git diff *)",
+      "Bash(lake build*)",
+      "Bash(lake exe cache get*)",
+      "Bash(lake env *)",
+      "Bash(python3 scripts/update_readme_stats.py*)",
+      "Bash(scripts/check-no-sorry.sh*)",
+      "Bash(scripts/check-no-heavy-tactics.sh*)",
+      "Bash(bash scripts/check-no-sorry.sh*)",
+      "Bash(bash scripts/check-no-heavy-tactics.sh*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git show*)",
+      "Bash(git rev-parse*)",
+      "Bash(git branch*)",
       "Bash(grep *)",
       "Bash(find *)",
-      "Bash(pdftotext *)",
       "Read(*)",
-      "WebSearch",
-      "Read(~/.elan/**)",
-      "Read(~/Documents/loogle/**)"
+      "Edit(*)",
+      "WebSearch"
     ],
     "deny": [
+      "Bash(git push*)",
+      "Bash(git reset*)",
+      "Bash(git rebase*)",
+      "Bash(git merge*)",
+      "Bash(git clean*)",
+      "Bash(git checkout .*)",
+      "Bash(git restore .*)",
+      "Bash(git filter-branch*)",
+      "Bash(git filter-repo*)",
       "Edit(**/LICENSE)",
       "Edit(**/LICENSE-CC-BY-NC-SA.md)",
-      "Edit(**/textbook/*.tex)",
-      "Edit(**/textbook/macros.tex)"
-    ]
-  },
-  "skills": {
-    "enabled": [
-      "lean4:autoformalize",
-      "lean4:autoprove",
-      "lean4:checkpoint",
-      "lean4:disprove",
-      "lean4:doctor",
-      "lean4:draft",
-      "lean4:formalize",
-      "lean4:golf",
-      "lean4:learn",
-      "lean4:prove",
-      "lean4:refactor",
-      "lean4:review"
-    ]
-  },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR:-$PWD}/.claude/hooks/check-lean-edit.sh\"",
-            "timeout": 30,
-            "statusMessage": "Checking Lean edit for forbidden terms"
-          }
-        ]
-      },
-      {
-        "matcher": "Read",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR:-$PWD}/.claude/hooks/check-read-path.sh\"",
-            "timeout": 30,
-            "statusMessage": "Checking read path"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR:-$PWD}/.claude/hooks/check-commit.sh\"",
-            "timeout": 60,
-            "if": "Bash(git *)",
-            "statusMessage": "Checking verification stamp before git commit"
-          }
-        ]
-      }
+      "Edit(**/textbook/**)"
     ]
   }
 }

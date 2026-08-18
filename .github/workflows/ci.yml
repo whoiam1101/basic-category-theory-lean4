@@ -97,7 +97,7 @@ jobs:
         run: |
           echo "Checking for banned heavy tactics (aesop, grind, omega)..."
           if grep -rnE '\b(aesop|grind|omega)\b' --include="*.lean" --exclude-dir=".claude/scratch" --exclude-dir=".lake" .; then
-            echo "::error::Found banned heavy tactics (aesop, grind, omega). Proofs must use standard tactics (see CLAUDE.md)."
+            echo "::error::Found banned heavy tactics (aesop, grind, omega). Proofs must use standard tactics (see AGENTS.md)."
             exit 1
           else
             echo "✓ No banned heavy tactics found."

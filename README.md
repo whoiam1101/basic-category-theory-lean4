@@ -33,10 +33,10 @@ This repository contains a comprehensive, non-commercial formalization of Tom Le
 
 | Metric | Verified Value | Details |
 | :--- | :---: | :--- |
-| 📚 **Completed Chapters** | **4 / 6** (69%) | Ch. 1–4 + Ch. 5.1 formalized + Introduction |
+| 📚 **Completed Chapters** | **4 / 6** (66%) | Ch. 1–4 fully formalized + Introduction |
 | 📑 **Checklist Items Done** | **18 / 26** (69%) | Detailed section & exercise coverage |
-| 🧮 **Formal Declarations** | **310** | `121` Theorems • `19` Lemmas • `162` Defs • `8` Instances |
-| 📝 **Lean 4 Source Lines** | **4,998 LOC** | Verified across `13` modules in `BasicCategoryTheory/` |
+| 🧮 **Formal Declarations** | **301** | `125` Theorems • `17` Lemmas • `151` Defs • `8` Instances |
+| 📝 **Lean 4 Source Lines** | **4,999 LOC** | Verified across `13` modules in `BasicCategoryTheory/` |
 | 🛡️ **Incomplete Proofs (`sorry`)** | **`0`** | Zero-sorry strict kernel verification |
 | ⚖️ **Axioms Usage** | **Standard Only** | Classical logic & choice (no custom axioms) |
 | 🤖 **Automated Checks (CI)** | **Passing** | `lake build`, signed commits, secret scan & zero-sorry gates |
