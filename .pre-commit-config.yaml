@@ -8,3 +8,28 @@ repos:
       - id: check-yaml
       - id: mixed-line-ending
         args: [--fix=lf]
+
+  - repo: local
+    hooks:
+      - id: check-no-sorry-admit
+        name: Check for sorry/admit in Lean files
+        entry: .claude/hooks/check-no-sorry.sh
+        language: script
+        types: [file]
+        files: \.lean$
+        exclude: ^\.claude/scratch/
+
+      - id: check-no-heavy-tactics
+        name: Check for banned heavy tactics in Lean files
+        entry: .claude/hooks/check-no-heavy-tactics.sh
+        language: script
+        types: [file]
+        files: \.lean$
+        exclude: ^\.claude/scratch/
+
+      - id: check-verification-stamp
+        name: Check verification stamp
+        entry: .claude/hooks/check-stamp.sh
+        language: script
+        pass_filenames: false
+        files: \.lean$
