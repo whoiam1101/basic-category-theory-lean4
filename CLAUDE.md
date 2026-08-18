@@ -11,7 +11,7 @@ This project formalizes Tom Leinster's textbook *Basic Category Theory* (arXiv:1
 ## License
 
 - **Code** (`BasicCategoryTheory/`): Apache 2.0 — see `LICENSE`
-- **Textbook** (`textbook/`): CC BY-NC-SA 4.0 by Tom Leinster — see `TEXTBOOK_LICENSE.md`. **Do not edit any `.tex` file in `textbook/`.**
+- **Textbook** (`textbook/`): CC BY-NC-SA 4.0 by Tom Leinster — see `LICENSE-CC-BY-NC-SA.md`. **Do not edit any `.tex` file in `textbook/`.**
 
 ## Project structure
 

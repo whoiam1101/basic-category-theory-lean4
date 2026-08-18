@@ -61,7 +61,7 @@
     ],
     "deny": [
       "Edit(**/LICENSE)",
-      "Edit(**/TEXTBOOK_LICENSE.md)",
+      "Edit(**/LICENSE-CC-BY-NC-SA.md)",
       "Edit(**/textbook/*.tex)",
       "Edit(**/textbook/macros.tex)"
     ]

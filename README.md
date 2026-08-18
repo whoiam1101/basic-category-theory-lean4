@@ -117,4 +117,4 @@ lake build           # Build and verify all formal proofs
 ## ⚖️ License
 
 - **Formalization Code** (`BasicCategoryTheory/`): [Apache 2.0 License](LICENSE).
-- **Textbook Content** (`textbook/`): Tom Leinster's **"Basic Category Theory"** ([arXiv:1612.09375](https://arxiv.org/abs/1612.09375)), licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). See [TEXTBOOK_LICENSE.md](TEXTBOOK_LICENSE.md).
+- **Textbook Content** (`textbook/`): Tom Leinster's **"Basic Category Theory"** ([arXiv:1612.09375](https://arxiv.org/abs/1612.09375)), licensed under [CC BY-NC-SA 4.0](LICENSE-CC-BY-NC-SA.md).
