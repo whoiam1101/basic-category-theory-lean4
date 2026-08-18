@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [ "${CI:-false}" = "true" ] || [ "${GITHUB_ACTIONS:-false}" = "true" ]; then
+  exit 0
+fi
+
 if [ ! -f .claude/verification-stamp ]; then
   echo "ERROR: .claude/verification-stamp is missing." >&2
   echo "Run: bash .claude/hooks/stamp-verification.sh" >&2
