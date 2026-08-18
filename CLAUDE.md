@@ -145,7 +145,7 @@ If the verifier reports issues, fix them and re-run the verifier until it passes
 
 Only then proceed to commit. Hard enforcement (PreToolUse hooks in `.claude/settings.json`, not dependent on prompts):
 
-- **`Edit|Write` is denied** for any path outside the project (the only outside exception is the Claude memory directory), and on `.lean` files it is additionally denied if the new content contains `sorry`, `admit`, `aesop`, `grind`, or `omega` (check: `.claude/hooks/check-lean-edit.sh`).
+- **`Edit|Write` is denied** for any path outside the project (the only outside exception is the Claude memory directory), and on `.lean` files it is additionally denied if the new content contains `aesop`, `grind`, or `omega` (check: `.claude/hooks/check-lean-edit.sh`). `sorry`/`admit` are allowed at edit time — the user fills them in; `stamp-verification.sh` + the commit hook still refuse to commit them.
 - **`Read` is denied** for any path outside the project, except the Lean-related locations: the elan toolchain (`~/.elan`), the local loogle checkout (`~/Documents/loogle`), `/tmp` scratch, and the Claude memory directory (check: `.claude/hooks/check-read-path.sh`).
 - **`git commit` is denied** if any `.lean` file is changed (staged, unstaged, or untracked) unless the verification stamp exists and matches the current content hash exactly, and the changed files contain no `sorry`/`admit` (check: `.claude/hooks/check-commit.sh`). Commits that touch no `.lean` files (e.g. `[INFRA]` docs) are exempt.
 

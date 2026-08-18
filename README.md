@@ -115,7 +115,7 @@ The central guarantee of this formalization is that **every theorem is a real pr
 - use an `unsafe` function, or
 - depend on an axiom outside the allowed set of standard axioms — reported as `Axiom '{axiom}' is not in the allowed set of standard axioms`.
 
-A file passes AXLE validation iff `okay` is `true` **and** `failed_declarations` is empty (plain `okay` only means the code compiles). For example:
+A file passes AXLE validation iff `okay` is `true` **and** `failed_declarations` is empty (plain `okay` only means the code compiles). In Claude Code the main entry points are the MCP tools `mcp__axle__check` and `mcp__axle__verify_proof`:
 
 - `check` — compile a snippet/file and list `failed_declarations` (fast, no formal statement needed);
 - `verify_proof` — check that a candidate proof actually proves a given formal statement (with the same axiom/sorry validation);

@@ -10,8 +10,11 @@ import Mathlib.Algebra.Module.StablyFree.Basic
 import Mathlib.CategoryTheory.Action.Basic
 import Mathlib.CategoryTheory.Products.Bifunctor
 import Mathlib.Combinatorics.Quiver.ReflQuiver
+import Mathlib.Data.Finset.Sort
+import Mathlib.Data.Fintype.Perm
 import Mathlib.LinearAlgebra.FreeModule.PID
 import Mathlib.LinearAlgebra.Matrix.FiniteDimensional
+import Mathlib.Order.Fin.Basic
 import Mathlib.RingTheory.Flat.TorsionFree
 import Mathlib.RingTheory.Henselian
 import Mathlib.RingTheory.PicardGroup
@@ -157,6 +160,178 @@ def example_1_3_7_0 {B : Type u} [Category.{u} B] :
           rcases f with ⟨⟨e⟩⟩
           cases e
           rfl }
+
+def example_1_3_7_1 {B : Type u} [Category.{u} B] : Cat.of (Discrete PUnit ⥤ B) ≅ Cat.of B :=
+  let hom : Cat.of (Discrete PUnit ⥤ B) ⥤ Cat.of B :=
+    { obj := fun F => F.obj (Discrete.mk PUnit.unit),
+      map := fun α => α.app (Discrete.mk PUnit.unit),
+      map_id := fun F => rfl,
+      map_comp := fun α β => rfl }
+  let inv : Cat.of B ⥤ Cat.of (Discrete PUnit ⥤ B) :=
+    { obj := fun X => { obj := fun _ => X,
+                        map := fun _ => 𝟙 X,
+                        map_id := fun _ => rfl,
+                        map_comp := by
+                          intro X Y Z f g
+                          change 𝟙 _ = 𝟙 _ ≫ 𝟙 _
+                          exact (Category.id_comp (X := _) (f := 𝟙 _)).symm },
+      map := fun f => { app := fun _ => f,
+                        naturality := by
+                          intro i j g
+                          exact (Category.id_comp f).trans
+                            (Category.comp_id f).symm },
+      map_id := fun X => by
+        apply NatTrans.ext
+        funext i
+        rfl,
+      map_comp := by
+        intro X Y Z f g
+        apply NatTrans.ext
+        funext i
+        rfl }
+  { hom := { toFunctor := hom },
+    inv := { toFunctor := inv },
+    hom_inv_id := by
+      apply Cat.Hom.ext
+      have hobj : ∀ F : Discrete PUnit ⥤ B, (hom ⋙ inv).obj F = F := by
+        intro F
+        have hobj' : ∀ i : Discrete PUnit, ((hom ⋙ inv).obj F).obj i = F.obj i := by
+          intro i
+          cases i with
+          | mk as =>
+            cases as
+            rfl
+        refine CategoryTheory.Functor.ext hobj' ?_
+        intro i j g
+        cases i with
+        | mk as =>
+          cases as
+          cases j with
+          | mk as =>
+            cases as
+            rcases g with ⟨⟨e⟩⟩
+            cases e
+            simp
+      refine CategoryTheory.Functor.ext hobj ?_
+      intro F G α
+      apply NatTrans.ext
+      funext ⟨⟨⟩⟩
+      have heq1 := @CategoryTheory.eqToHom_app (Discrete PUnit) _ B _
+        ((hom ⋙ inv).obj F) F (hobj F) ⟨PUnit.unit⟩
+      have heq2 := @CategoryTheory.eqToHom_app (Discrete PUnit) _ B _
+        G ((hom ⋙ inv).obj G) (hobj G).symm ⟨PUnit.unit⟩
+      change (inv.map (hom.map α)).app ⟨PUnit.unit⟩ =
+        (@eqToHom (Discrete PUnit ⥤ B) _ _ _ (hobj F)).app ⟨PUnit.unit⟩ ≫ α.app ⟨PUnit.unit⟩ ≫
+        (@eqToHom (Discrete PUnit ⥤ B) _ _ _ (hobj G).symm).app ⟨PUnit.unit⟩
+      have h1 : Functor.congr_obj (hobj F) ⟨PUnit.unit⟩ = rfl := Subsingleton.elim _ rfl
+      have h2 : Functor.congr_obj (hobj G).symm ⟨PUnit.unit⟩ = rfl := Subsingleton.elim _ rfl
+      rw [heq1, heq2, h1, h2]
+      change α.app ⟨PUnit.unit⟩ = 𝟙 _ ≫ α.app ⟨PUnit.unit⟩ ≫ 𝟙 _
+      rw [Category.id_comp, Category.comp_id]
+    inv_hom_id := by
+      apply Cat.Hom.ext
+      have hobj : ∀ X : B, (inv ⋙ hom).obj X = X := by
+        intro X
+        rfl
+      refine CategoryTheory.Functor.ext hobj ?_
+      intro X Y f
+      change f = 𝟙 X ≫ f ≫ 𝟙 Y
+      rw [Category.comp_id, Category.id_comp] }
+
+def example_1_3_7_2 {B : Type u} [Category.{u} B] :
+    Cat.of (Discrete (Fin 2) ⥤ B) ≅ Cat.of (B × B) :=
+  let hom : Cat.of (Discrete (Fin 2) ⥤ B) ⥤ Cat.of (B × B) :=
+    { obj := fun F => (F.obj (Discrete.mk 0), F.obj (Discrete.mk 1)),
+      map := fun α => (α.app (Discrete.mk 0), α.app (Discrete.mk 1)),
+      map_id := fun F => rfl,
+      map_comp := fun α β => rfl }
+  let inv : Cat.of (B × B) ⥤ Cat.of (Discrete (Fin 2) ⥤ B) :=
+    { obj := fun P => Discrete.functor (fun k : Fin 2 => match k.val with
+        | 0 => P.1
+        | _ => P.2),
+      map := fun f =>
+        { app := fun i => match i with
+            | Discrete.mk ⟨0, _⟩ => f.1
+            | Discrete.mk ⟨n+1, _⟩ => f.2
+          naturality := by
+            intro i j g
+            rcases g with ⟨⟨h⟩⟩
+            cases i with
+            | mk ias =>
+              cases j with
+              | mk jas =>
+                fin_cases ias <;> fin_cases jas <;> (try cases h) <;> simp },
+      map_id := by
+        intro P
+        apply NatTrans.ext
+        funext i
+        cases i with
+        | mk ias => fin_cases ias <;> rfl
+      map_comp := by
+        intro P Q R f g
+        apply NatTrans.ext
+        funext i
+        cases i with
+        | mk ias => fin_cases ias <;> rfl }
+  { hom := { toFunctor := hom },
+    inv := { toFunctor := inv },
+    hom_inv_id := by
+      apply Cat.Hom.ext
+      have hobj : ∀ F : Discrete (Fin 2) ⥤ B, (hom ⋙ inv).obj F = F := by
+        intro F
+        have hobj' : ∀ i : Discrete (Fin 2), ((hom ⋙ inv).obj F).obj i = F.obj i := by
+          intro i
+          cases i with
+          | mk ias => fin_cases ias <;> rfl
+        refine CategoryTheory.Functor.ext hobj' ?_
+        intro i j g
+        cases i with
+        | mk ias =>
+          cases j with
+          | mk jas =>
+            rcases g with ⟨⟨h⟩⟩
+            cases h
+            simp
+      refine CategoryTheory.Functor.ext hobj ?_
+      intro F G α
+      apply NatTrans.ext
+      funext i
+      cases i with
+      | mk ias =>
+        fin_cases ias
+        · have heq1 := @CategoryTheory.eqToHom_app (Discrete (Fin 2)) _ B _
+            ((hom ⋙ inv).obj F) F (hobj F) ⟨0⟩
+          have heq2 := @CategoryTheory.eqToHom_app (Discrete (Fin 2)) _ B _
+            G ((hom ⋙ inv).obj G) (hobj G).symm ⟨0⟩
+          change (inv.map (hom.map α)).app ⟨0⟩ =
+            (@eqToHom (Discrete (Fin 2) ⥤ B) _ _ _ (hobj F)).app ⟨0⟩ ≫ α.app ⟨0⟩ ≫
+            (@eqToHom (Discrete (Fin 2) ⥤ B) _ _ _ (hobj G).symm).app ⟨0⟩
+          have h1 : Functor.congr_obj (hobj F) ⟨0⟩ = rfl := Subsingleton.elim _ rfl
+          have h2 : Functor.congr_obj (hobj G).symm ⟨0⟩ = rfl := Subsingleton.elim _ rfl
+          rw [heq1, heq2, h1, h2]
+          change α.app ⟨0⟩ = 𝟙 _ ≫ α.app ⟨0⟩ ≫ 𝟙 _
+          rw [Category.id_comp, Category.comp_id]
+        · have heq1 := @CategoryTheory.eqToHom_app (Discrete (Fin 2)) _ B _
+            ((hom ⋙ inv).obj F) F (hobj F) ⟨1⟩
+          have heq2 := @CategoryTheory.eqToHom_app (Discrete (Fin 2)) _ B _
+            G ((hom ⋙ inv).obj G) (hobj G).symm ⟨1⟩
+          change (inv.map (hom.map α)).app ⟨1⟩ =
+            (@eqToHom (Discrete (Fin 2) ⥤ B) _ _ _ (hobj F)).app ⟨1⟩ ≫ α.app ⟨1⟩ ≫
+            (@eqToHom (Discrete (Fin 2) ⥤ B) _ _ _ (hobj G).symm).app ⟨1⟩
+          have h1 : Functor.congr_obj (hobj F) ⟨1⟩ = rfl := Subsingleton.elim _ rfl
+          have h2 : Functor.congr_obj (hobj G).symm ⟨1⟩ = rfl := Subsingleton.elim _ rfl
+          rw [heq1, heq2, h1, h2]
+          change α.app ⟨1⟩ = 𝟙 _ ≫ α.app ⟨1⟩ ≫ 𝟙 _
+          rw [Category.id_comp, Category.comp_id]
+    inv_hom_id := by
+      apply Cat.Hom.ext
+      have hobj : ∀ P : B × B, (inv ⋙ hom).obj P = P := by
+        intro P
+        rfl
+      refine CategoryTheory.Functor.ext hobj ?_
+      intro P Q f
+      change f = 𝟙 P ≫ f ≫ 𝟙 Q
+      rw [Category.comp_id, Category.id_comp] }
 
 def example_1_3_8 (G : MonCat.{u}) : (SingleObj G ⥤ Type u) ≌ Action (Type u) G :=
   (Action.functorCategoryEquivalence (Type u) G).symm
@@ -612,6 +787,52 @@ theorem exercise_1_3_29_converse {A B C : Type u} [Category.{v} A] [Category.{v}
     _ = α a b ≫ (G.map (Prod.mkHom f (𝟙 b)) ≫ G.map (Prod.mkHom (𝟙 a') g)) := by
       rw [Category.assoc]
 
+def zpowGroupHom {G : Type u} [Group G] (g : G) : Multiplicative ℤ →* G where
+  toFun n := g ^ n.toAdd
+  map_one' := by
+    simp
+  map_mul' := by
+    intro n m
+    change g ^ (n.toAdd + m.toAdd) = g ^ n.toAdd * g ^ m.toAdd
+    rw [zpow_add]
+
+theorem exercise_1_3_30 {G : Type u} [Group G] (g h : G) :
+    Nonempty (SingleObj.mapHom (Multiplicative ℤ) G (zpowGroupHom (G := G) g) ≅
+        SingleObj.mapHom (Multiplicative ℤ) G (zpowGroupHom (G := G) h)) ↔
+      ∃ x : G, h = x⁻¹ * g * x := by
+  constructor
+  · intro hIso
+    rcases hIso with ⟨α⟩
+    let x : G := α.hom.app PUnit.unit
+    refine ⟨x⁻¹, ?_⟩
+    have hn := α.hom.naturality (X := PUnit.unit) (Y := PUnit.unit)
+      (Multiplicative.ofAdd (1 : ℤ))
+    change x * g ^ (1 : ℤ) = h ^ (1 : ℤ) * x at hn
+    simp only [zpow_one] at hn
+    calc
+      h = (h * x) * x⁻¹ := by simp
+      _ = (x * g) * x⁻¹ := by rw [← hn]
+      _ = (x⁻¹)⁻¹ * g * x⁻¹ := by simp [mul_assoc]
+  · intro ⟨x, hx⟩
+    let y := x⁻¹
+    refine ⟨NatIso.ofComponents
+      (fun _ =>
+        { hom := y,
+          inv := y⁻¹,
+          hom_inv_id := inv_mul_cancel y,
+          inv_hom_id := mul_inv_cancel y })
+      (by
+        intro X Y f
+        cases X; cases Y
+        change y * g ^ f.toAdd = h ^ f.toAdd * y
+        have h_conj : h = y * g * y⁻¹ := by
+          calc
+            h = x⁻¹ * g * x := hx
+            _ = y * g * y⁻¹ := by simp [y]
+        have h_pow : h ^ f.toAdd = y * g ^ f.toAdd * y⁻¹ := by
+          rw [h_conj, conj_zpow]
+        rw [h_pow, mul_assoc, inv_mul_cancel, mul_one])⟩
+
 theorem exercise_1_3_32 {C : Type u} [Category.{v} C] {D : Type u'}
     [Category.{v'} D] (F : C ⥤ D) : F.IsEquivalence ↔ F.Full ∧ F.Faithful ∧ F.EssSurj := by
   constructor
@@ -675,6 +896,124 @@ theorem exercise_1_3_33 (k : Type u) [Field k] :
     Nonempty (Mat k ≌ FDVect.{u} k) := by
   letI : (matToFDVect k).IsEquivalence := Functor.IsEquivalence.mk
   exact ⟨(matToFDVect k).asEquivalence⟩
+
+structure FinBijSet where
+  carrier : Type u
+  fintype : Fintype carrier
+  decidableEq : DecidableEq carrier
+
+attribute [instance] FinBijSet.fintype FinBijSet.decidableEq
+
+instance : Category FinBijSet where
+  Hom X Y := X.carrier ≃ Y.carrier
+  id X := Equiv.refl X.carrier
+  comp f g := f.trans g
+  id_comp f := by ext x; rfl
+  comp_id f := by ext x; rfl
+  assoc f g h := by ext x; rfl
+
+def exercise_1_3_31b_sym : FinBijSet ⥤ Type u where
+  obj X := Equiv.Perm X.carrier
+  map {X Y} e := TypeCat.ofHom (fun (σ : Equiv.Perm X.carrier) => e.symm.trans (σ.trans e))
+  map_id X := by
+    ext σ x
+    rfl
+  map_comp f g := by
+    ext σ x
+    rfl
+
+noncomputable def exercise_1_3_31b_ord : FinBijSet ⥤ Type u where
+  obj X := LinearOrder X.carrier
+  map {X Y} e := TypeCat.ofHom (fun (L : LinearOrder X.carrier) =>
+    letI : LinearOrder X.carrier := L
+    LinearOrder.lift' e.symm e.symm.injective)
+  map_id X := by
+    ext L
+    rfl
+  map_comp f g := by
+    ext L
+    rfl
+
+theorem exercise_1_3_31c : ¬ Nonempty (exercise_1_3_31b_sym.{u} ⟶ exercise_1_3_31b_ord.{u}) := by
+  rintro ⟨α⟩
+  let X : FinBijSet.{u} := ⟨ULift.{u} (Fin 2), inferInstance, inferInstance⟩
+  let idX : Equiv.Perm (ULift.{u} (Fin 2)) := Equiv.refl _
+  let swap : X ⟶ X := (Equiv.ulift.trans (Equiv.swap (0 : Fin 2) 1)).trans Equiv.ulift.symm
+  have hswap : (exercise_1_3_31b_sym.map swap : _ → _) idX = idX := by
+    apply Equiv.ext
+    intro ⟨x⟩
+    fin_cases x <;> rfl
+  have hnat := α.naturality swap
+  have hspec : α.app X idX = (exercise_1_3_31b_ord.map swap : _ → _) (α.app X idX) := by
+    have h1 := congrFun (congrArg (fun m :
+      exercise_1_3_31b_sym.obj X ⟶ exercise_1_3_31b_ord.obj X =>
+      (m : Equiv.Perm (ULift.{u} (Fin 2)) → LinearOrder (ULift.{u} (Fin 2)))) hnat) idX
+    change α.app X ((exercise_1_3_31b_sym.map swap : _ → _) idX) =
+      (exercise_1_3_31b_ord.map swap : _ → _) (α.app X idX) at h1
+    rw [hswap] at h1
+    exact h1
+  let L : LinearOrder (ULift.{u} (Fin 2)) := α.app X idX
+  let z0 : ULift.{u} (Fin 2) := ⟨0⟩
+  let z1 : ULift.{u} (Fin 2) := ⟨1⟩
+  have hcomm : @LE.le _ L.toLE z0 z1 ↔ @LE.le _ L.toLE z1 z0 := by
+    have h1 : @LE.le _ L.toLE z0 z1 ↔ @LE.le _ (exercise_1_3_31b_ord.map swap L).toLE z0 z1 :=
+      (congrArg (fun K : LinearOrder (ULift (Fin 2)) => @LE.le _ K.toLE z0 z1) hspec).to_iff
+    have h2 : @LE.le _ (exercise_1_3_31b_ord.map swap L).toLE z0 z1 ↔
+        @LE.le _ L.toLE (swap.symm z0) (swap.symm z1) := Iff.rfl
+    have hs0 : swap.symm z0 = z1 := rfl
+    have hs1 : swap.symm z1 = z0 := rfl
+    rw [h1, h2, hs0, hs1]
+  have h_le01 : @LE.le _ L.toLE z0 z1 := by
+    rcases L.le_total z0 z1 with h | h
+    · exact h
+    · exact hcomm.mpr h
+  have h_le10 : @LE.le _ L.toLE z1 z0 := hcomm.mp h_le01
+  have hz : z0 = z1 := L.le_antisymm z0 z1 h_le01 h_le10
+  have hne : (0 : Fin 2) ≠ 1 := by decide
+  exact hne (congrArg ULift.down hz)
+
+noncomputable def linearOrderEquivFin (α : Type u) [Fintype α] [DecidableEq α] :
+    LinearOrder α ≃ (α ≃ Fin (Fintype.card α)) where
+  toFun L := (@Fintype.orderIsoFinOfCardEq α L _ _ rfl).symm.toEquiv
+  invFun e := LinearOrder.lift' e e.injective
+  left_inv L := by
+    apply LinearOrder.ext
+    intro x y
+    exact (@Fintype.orderIsoFinOfCardEq α L _ _ rfl).symm.map_rel_iff
+  right_inv e := by
+    apply Equiv.ext
+    intro x
+    letI : LinearOrder α := LinearOrder.lift' e e.injective
+    let e_iso : α ≃o Fin (Fintype.card α) := ⟨e, fun {a b} => Iff.rfl⟩
+    have hcomp : e_iso.symm.trans (Fintype.orderIsoFinOfCardEq α rfl).symm =
+        OrderIso.refl _ := by
+      ext i
+      exact Fin.coe_orderIso_apply _ i
+    have hx : (e_iso.symm.trans (Fintype.orderIsoFinOfCardEq α rfl).symm) (e x) = e x := by
+      rw [hcomp]
+      rfl
+    change (Fintype.orderIsoFinOfCardEq α rfl).symm (e.symm (e x)) = e x at hx
+    rw [e.symm_apply_apply] at hx
+    exact hx
+
+noncomputable instance exercise_1_3_31d_ord_fintype (X : FinBijSet) :
+    Fintype (LinearOrder X.carrier) :=
+  Fintype.ofEquiv (X.carrier ≃ Fin (Fintype.card X.carrier)) (linearOrderEquivFin X.carrier).symm
+
+open Classical in
+theorem exercise_1_3_31d_ord_card (X : FinBijSet) :
+    Fintype.card (LinearOrder X.carrier) = (Fintype.card X.carrier).factorial := by
+  have h := @Fintype.card_congr (LinearOrder X.carrier) (X.carrier ≃ Fin (Fintype.card X.carrier))
+    (exercise_1_3_31d_ord_fintype X) inferInstance (linearOrderEquivFin X.carrier)
+  rw [h, Fintype.card_equiv (Fintype.equivFin X.carrier)]
+
+theorem exercise_1_3_31_conclusion (X : FinBijSet) :
+    Nonempty (Equiv.Perm X.carrier ≃ LinearOrder X.carrier) := by
+  have h1 : Fintype.card (Equiv.Perm X.carrier) = (Fintype.card X.carrier).factorial :=
+    Fintype.card_perm
+  have h2 : Fintype.card (LinearOrder X.carrier) = (Fintype.card X.carrier).factorial :=
+    exercise_1_3_31d_ord_card X
+  exact ⟨Fintype.equivOfCardEq (h1.trans h2.symm)⟩
 
 def exercise_1_3_34_refl (C : Type u) [Category.{v} C] : C ≌ C :=
   CategoryTheory.Equivalence.refl

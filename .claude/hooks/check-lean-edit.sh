@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # PreToolUse hook for Edit|Write:
 #  1) deny any edit outside the project (exception: the Claude memory dir)
-#  2) deny introducing sorry/admit or heavy automation tactics
-#     (aesop/grind/omega) into .lean files
+#  2) deny introducing heavy automation tactics (aesop/grind/omega)
+#     into .lean files. `sorry`/`admit` are allowed at edit time (the user
+#     fills them in); the stamp-verification.sh + check-commit.sh gates
+#     still refuse to commit any sorry/admit.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
@@ -60,10 +62,10 @@ case "$abs" in
     ;;
 esac
 
-if printf '%s' "$content" | grep -qE '\b(sorry|admit|aesop|grind|omega)\b'; then
-  forbidden="$(printf '%s' "$content" | grep -oE '\b(sorry|admit|aesop|grind|omega)\b' | sort -u | tr '\n' ' ')"
+if printf '%s' "$content" | grep -qE '\b(aesop|grind|omega)\b'; then
+  forbidden="$(printf '%s' "$content" | grep -oE '\b(aesop|grind|omega)\b' | sort -u | tr '\n' ' ')"
   jq -n --arg m "$forbidden" \
-    '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: ("Blocked: Lean code contains forbidden terms: " + $m + "— project rules forbid sorry/admit and heavy tactics (aesop/grind/omega); rewrite the proof.")}}'
+    '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: ("Blocked: Lean code contains heavy tactics: " + $m + "— project rules forbid aesop/grind/omega.")}}'
   exit 0
 fi
 
