@@ -149,6 +149,11 @@ theorem example_6_3_5_no_left_adjoint_of_initial {C : Type u₁} [Category.{v₁
   have h_init : IsInitial (F.obj (⊥_ C)) := IsInitial.isInitialObj F (⊥_ C) initialIsInitial
   exact h_no_init (F.obj (⊥_ C)) ⟨h_init⟩
 
+theorem example_6_3_5_fields_no_left_adjoint :
+    ¬ Nonempty Adjoints.FieldCat.forget.{u}.IsRightAdjoint :=
+  fun h => example_6_3_5_no_left_adjoint_of_initial Adjoints.FieldCat.forget.{u}
+    Adjoints.fieldCat_has_no_initial h
+
 abbrev def_6_3_6_complete (C : Type u) [Category.{v} C] : Prop :=
   HasLimits C
 

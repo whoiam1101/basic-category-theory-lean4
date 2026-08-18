@@ -4,10 +4,13 @@
 
 import Mathlib.Algebra.Category.Grp.Adjunctions
 import Mathlib.Algebra.Category.ModuleCat.Adjunctions
+import Mathlib.Algebra.Field.ULift
+import Mathlib.Algebra.Field.ZMod
 import Mathlib.CategoryTheory.Adjunction.Whiskering
 import Mathlib.CategoryTheory.Category.PartialFun
 import Mathlib.CategoryTheory.Monoidal.Closed.Types
 import Mathlib.Combinatorics.Quiver.ReflQuiver
+import Mathlib.GroupTheory.PresentedGroup
 import Mathlib.Topology.Category.TopCat.Adjunctions
 
 namespace Adjoints
@@ -31,6 +34,111 @@ abbrev example_2_1_3c :
 abbrev example_2_1_3d :
     GrpCat.abelianize ⊣ forget₂ CommGrpCat GrpCat.{u} :=
   GrpCat.abelianizeAdj
+
+inductive FreeGroupOnMonoid.Rel (M : Type u) [Monoid M] : FreeGroup M → Prop where
+  | one : FreeGroupOnMonoid.Rel M (FreeGroup.of 1)
+  | mul (x y : M) :
+    FreeGroupOnMonoid.Rel M (FreeGroup.of (x * y) * (FreeGroup.of x * FreeGroup.of y)⁻¹)
+
+def FreeGroupOnMonoid.rels (M : Type u) [Monoid M] : Set (FreeGroup M) :=
+  setOf (FreeGroupOnMonoid.Rel M)
+
+def FreeGroupOnMonoid (M : Type u) [Monoid M] : Type u :=
+  PresentedGroup (FreeGroupOnMonoid.rels M)
+
+instance (M : Type u) [Monoid M] : Group (FreeGroupOnMonoid M) :=
+  inferInstanceAs (Group (PresentedGroup (FreeGroupOnMonoid.rels M)))
+
+namespace FreeGroupOnMonoid
+
+def of (M : Type u) [Monoid M] : M →* FreeGroupOnMonoid M where
+  toFun x := PresentedGroup.of x
+  map_one' := by
+    dsimp [FreeGroupOnMonoid]
+    exact PresentedGroup.one_of_mem Rel.one
+  map_mul' x y := by
+    dsimp [FreeGroupOnMonoid]
+    exact PresentedGroup.mk_eq_mk_of_mul_inv_mem (Rel.mul x y)
+
+theorem lift_rels_subset {M : Type u} [Monoid M] {G : Type u} [Group G] (f : M →* G) :
+    ∀ r ∈ rels M, FreeGroup.lift (f : M → G) r = 1 := by
+  intro r hr
+  cases hr with
+  | one =>
+    simp only [FreeGroup.lift_apply_of, map_one]
+  | mul x y =>
+    simp only [map_mul, map_inv, FreeGroup.lift_apply_of, f.map_mul, mul_inv_cancel]
+
+def lift {M : Type u} [Monoid M] {G : Type u} [Group G] (f : M →* G) : FreeGroupOnMonoid M →* G :=
+  PresentedGroup.toGroup (lift_rels_subset f)
+
+@[simp]
+theorem lift_of {M : Type u} [Monoid M] {G : Type u} [Group G] (f : M →* G) (x : M) :
+    lift f (of M x) = f x :=
+  PresentedGroup.toGroup.of (lift_rels_subset f)
+
+theorem lift_unique {M : Type u} [Monoid M] {G : Type u} [Group G] (f : M →* G)
+    (g : FreeGroupOnMonoid M →* G) (h : ∀ x, g (of M x) = f x) : g = lift f := by
+  apply PresentedGroup.ext
+  intro x
+  exact (h x).trans (lift_of f x).symm
+
+end FreeGroupOnMonoid
+
+def MonCat.freeGroup : MonCat.{u} ⥤ GrpCat.{u} where
+  obj M := GrpCat.of (FreeGroupOnMonoid M)
+  map {M N} f := GrpCat.ofHom (FreeGroupOnMonoid.lift ((FreeGroupOnMonoid.of N).comp f.hom))
+  map_id M := by
+    apply GrpCat.hom_ext
+    rw [GrpCat.hom_ofHom]
+    exact (FreeGroupOnMonoid.lift_unique (FreeGroupOnMonoid.of M) (MonoidHom.id _)
+      (fun _ => rfl)).symm
+  map_comp {M N P} f g := by
+    apply GrpCat.hom_ext
+    rw [GrpCat.hom_ofHom, GrpCat.hom_comp, GrpCat.hom_ofHom, GrpCat.hom_ofHom]
+    apply (FreeGroupOnMonoid.lift_unique _ _ _).symm
+    intro x
+    simp only [MonoidHom.comp_apply, FreeGroupOnMonoid.lift_of, MonCat.hom_comp]
+
+def MonCat.freeGroupAdj : MonCat.freeGroup.{u} ⊣ forget₂ GrpCat.{u} MonCat.{u} :=
+  Adjunction.mkOfHomEquiv
+    { homEquiv := fun M G =>
+        { toFun := fun f => MonCat.ofHom (f.hom.comp (FreeGroupOnMonoid.of M))
+          invFun := fun f => GrpCat.ofHom (FreeGroupOnMonoid.lift (G := G) f.hom)
+          left_inv := fun f => by
+            apply GrpCat.hom_ext
+            rw [GrpCat.hom_ofHom]
+            exact (FreeGroupOnMonoid.lift_unique _ _ (fun _ => rfl)).symm
+          right_inv := fun f => by
+            apply MonCat.hom_ext
+            rw [MonCat.hom_ofHom]
+            ext x
+            exact FreeGroupOnMonoid.lift_of (G := G) f.hom x }
+      homEquiv_naturality_left_symm := by
+        intro M N G f g
+        apply GrpCat.hom_ext
+        apply (FreeGroupOnMonoid.lift_unique _ _ _).symm
+        intro x
+        change (GrpCat.Hom.hom
+          (GrpCat.ofHom (FreeGroupOnMonoid.lift ((FreeGroupOnMonoid.of N).comp f.hom)) ≫
+            GrpCat.ofHom (FreeGroupOnMonoid.lift (G := G) g.hom))) (FreeGroupOnMonoid.of M x) =
+          (f ≫ g).hom x
+        rw [GrpCat.hom_comp, GrpCat.hom_ofHom, GrpCat.hom_ofHom]
+        simp only [MonoidHom.comp_apply, FreeGroupOnMonoid.lift_of, MonCat.hom_comp] }
+
+instance : MonCat.freeGroup.{u}.IsLeftAdjoint :=
+  ⟨_, ⟨MonCat.freeGroupAdj⟩⟩
+
+instance : (forget₂ GrpCat.{u} MonCat.{u}).IsRightAdjoint :=
+  ⟨_, ⟨MonCat.freeGroupAdj⟩⟩
+
+abbrev example_2_1_3d_F_U :
+    MonCat.freeGroup.{u} ⊣ forget₂ GrpCat.{u} MonCat.{u} :=
+  MonCat.freeGroupAdj
+
+abbrev example_2_1_3e_F_U :
+    MonCat.freeGroup.{u} ⊣ forget₂ GrpCat.{u} MonCat.{u} :=
+  MonCat.freeGroupAdj
 
 abbrev example_2_1_3e_U_R :
     forget₂ GrpCat MonCat.{u} ⊣ MonCat.units :=
@@ -173,6 +281,83 @@ noncomputable def exercise_2_1_15_right {C : Type u} [Category.{v} C] {D : Type 
     have : (adj.homEquiv X T).symm f = hT.from (F.obj X) := hT.hom_ext _ _
     rw [this, Equiv.symm_apply_apply]
   exact IsTerminal.ofUnique (G.obj T)
+
+structure FieldCat where
+  carrier : Type u
+  [isField : Field carrier]
+
+namespace FieldCat
+
+instance : CoeSort FieldCat (Type u) := ⟨FieldCat.carrier⟩
+attribute [instance] FieldCat.isField
+
+def of (K : Type u) [Field K] : FieldCat.{u} := ⟨K⟩
+
+instance : Category FieldCat.{u} where
+  Hom K L := K.carrier →+* L.carrier
+  id K := RingHom.id K.carrier
+  comp f g := RingHom.comp g f
+
+def forget : FieldCat.{u} ⥤ Type u where
+  obj K := K.carrier
+  map {K L} (f : K ⟶ L) := ↾(f : K.carrier →+* L.carrier).toFun
+
+end FieldCat
+
+lemma two_ne_zero_rat : (2 : ULift.{u} ℚ) ≠ 0 := by
+  intro h
+  have : (2 : ℚ) = 0 := congrArg ULift.down h
+  revert this
+  decide
+
+lemma two_eq_zero_zmod2 : (2 : ULift.{u} (ZMod 2)) = 0 := by
+  apply ULift.ext
+  exact CharP.cast_eq_zero (ZMod 2) 2
+
+lemma no_hom_rat_and_zmod2 (K : Type u) [Field K]
+    (f : K →+* ULift.{u} ℚ) (g : K →+* ULift.{u} (ZMod 2)) : False := by
+  have h2_K : (2 : K) ≠ 0 := by
+    intro h2
+    have hf2 : f (2 : K) = 0 := by rw [h2, map_zero]
+    have hf2' : f (2 : K) = (2 : ULift.{u} ℚ) := map_ofNat f 2
+    rw [hf2'] at hf2
+    exact two_ne_zero_rat hf2
+  have h_inv : (2 : K) * (2 : K)⁻¹ = 1 := mul_inv_cancel₀ h2_K
+  have hg : g ((2 : K) * (2 : K)⁻¹) = 1 := by rw [h_inv, map_one]
+  have hg2 : g ((2 : K) * (2 : K)⁻¹) = 0 := by
+    rw [map_mul, map_ofNat, two_eq_zero_zmod2, zero_mul]
+  have : (1 : ULift.{u} (ZMod 2)) = 0 := hg.symm.trans hg2
+  have h_down : (1 : ZMod 2) = (0 : ZMod 2) := congrArg ULift.down this
+  revert h_down
+  decide
+
+theorem fieldCat_has_no_initial (X : FieldCat.{u}) : ¬ Nonempty (IsInitial X) := by
+  rintro ⟨h_init⟩
+  let Y1 := FieldCat.of (ULift.{u} ℚ)
+  let Y2 := FieldCat.of (ULift.{u} (ZMod 2))
+  have f : X ⟶ Y1 := h_init.to Y1
+  have g : X ⟶ Y2 := h_init.to Y2
+  exact no_hom_rat_and_zmod2 X.carrier (f : X.carrier →+* ULift.{u} ℚ)
+    (g : X.carrier →+* ULift.{u} (ZMod 2))
+
+theorem example_2_1_3e_field_no_left_adjoint (F : Type u ⥤ FieldCat.{u}) :
+    ¬ Nonempty (F ⊣ FieldCat.forget.{u}) := by
+  rintro ⟨adj⟩
+  have h_init : IsInitial (F.obj (⊥_ (Type u))) :=
+    exercise_2_1_15_left adj initialIsInitial
+  exact fieldCat_has_no_initial (F.obj (⊥_ (Type u))) ⟨h_init⟩
+
+theorem example_2_1_3e_field_not_isRightAdjoint :
+    ¬ Nonempty FieldCat.forget.{u}.IsRightAdjoint := by
+  rintro ⟨h_adj⟩
+  haveI := h_adj
+  exact example_2_1_3e_field_no_left_adjoint FieldCat.forget.{u}.leftAdjoint
+    ⟨Adjunction.ofIsRightAdjoint FieldCat.forget.{u}⟩
+
+abbrev example_2_1_3_field_no_left_adjoint := @example_2_1_3e_field_no_left_adjoint
+abbrev example_2_1_3_field_not_isRightAdjoint := @example_2_1_3e_field_not_isRightAdjoint
+abbrev example_2_1_3f_field_no_left_adjoint := @example_2_1_3e_field_no_left_adjoint
+abbrev example_2_1_3f_field_not_isRightAdjoint := @example_2_1_3e_field_not_isRightAdjoint
 
 theorem example_2_2_1_unit (k : Type u) [Field k] (S : Type u) (s : S) :
     (example_2_1_3b k).unit.app S s = Finsupp.single s 1 := by
