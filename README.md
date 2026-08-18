@@ -20,7 +20,7 @@ The formalization maps precisely to the table of contents of Tom Leinster's *Bas
   - [x] **3.3** Historical remarks
 - [ ] **4. Representables**
   - [x] **4.1** Definitions and examples
-  - [ ] **4.2** The Yoneda lemma
+  - [x] **4.2** The Yoneda lemma
   - [ ] **4.3** Consequences of the Yoneda lemma
 - [ ] **5. Limits**
   - [ ] **5.1** Limits: definition and examples
