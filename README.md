@@ -18,10 +18,10 @@ The formalization maps precisely to the table of contents of Tom Leinster's *Bas
   - [x] **3.1** Constructions with sets
   - [x] **3.2** Small and large categories
   - [x] **3.3** Historical remarks
-- [ ] **4. Representables**
+- [x] **4. Representables**
   - [x] **4.1** Definitions and examples
   - [x] **4.2** The Yoneda lemma
-  - [ ] **4.3** Consequences of the Yoneda lemma
+  - [x] **4.3** Consequences of the Yoneda lemma
 - [ ] **5. Limits**
   - [ ] **5.1** Limits: definition and examples
   - [ ] **5.2** Colimits: definition and examples
