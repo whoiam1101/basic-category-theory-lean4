@@ -29,14 +29,14 @@ This repository contains a comprehensive, non-commercial formalization of Tom Le
 
 <div align="center">
 
-![Progress](https://geps.dev/progress/88?dangerColor=800000&warningColor=ff8000&successColor=00aa00)
+![Progress](https://geps.dev/progress/96?dangerColor=800000&warningColor=ff8000&successColor=00aa00)
 
 | Metric | Verified Value | Details |
 | :--- | :---: | :--- |
-| 📚 **Completed Chapters** | **5 / 6** (83%) | Ch. 1–5 fully formalized + Introduction |
-| 📑 **Checklist Items Done** | **23 / 26** (88%) | Detailed section & exercise coverage |
-| 🧮 **Formal Declarations** | **422** | `180` Theorems • `18` Lemmas • `216` Defs • `8` Instances |
-| 📝 **Lean 4 Source Lines** | **6,883 LOC** | Verified across `17` modules in `BasicCategoryTheory/` |
+| 📚 **Completed Chapters** | **6 / 6** (100%) | Ch. 1–6 fully formalized + Introduction |
+| 📑 **Checklist Items Done** | **25 / 26** (96%) | Detailed section & exercise coverage |
+| 🧮 **Formal Declarations** | **456** | `190` Theorems • `18` Lemmas • `236` Defs • `12` Instances |
+| 📝 **Lean 4 Source Lines** | **7,251 LOC** | Verified across `18` modules in `BasicCategoryTheory/` |
 | 🛡️ **Incomplete Proofs (`sorry`)** | **`0`** | Zero-sorry strict kernel verification |
 | ⚖️ **Axioms Usage** | **Standard Only** | Classical logic & choice (no custom axioms) |
 | 🤖 **Automated Checks (CI)** | **Passing** | `lake build`, signed commits, secret scan & zero-sorry gates |
@@ -65,6 +65,11 @@ This repository contains a comprehensive, non-commercial formalization of Tom Le
 | **Proposition 6.1.4** | Limit functor as right adjoint to diagonal functor ($\Delta \dashv \lim$) | [`proposition_6_1_4_adjunction`](BasicCategoryTheory/Chapter6_AdjointsRepresentablesAndLimits/LimitsInTermsOfRepresentablesAndAdjoints.lean) | ✅ Verified |
 | **Theorem 6.2.9** | **The Density Theorem** (every presheaf is a colimit of representables) | [`theorem_6_2_9_isColimit_density`](BasicCategoryTheory/Chapter6_AdjointsRepresentablesAndLimits/LimitsAndColimitsOfPresheaves.lean) | ✅ Verified |
 
+| **Theorem 6.3.1** | Right adjoints preserve limits, left adjoints preserve colimits | [`theorem_6_3_1_rightAdjoint_preservesLimits`](BasicCategoryTheory/Chapter6_AdjointsRepresentablesAndLimits/InteractionsBetweenAdjointFunctorsAndLimits.lean) | ✅ Verified |
+| **Proposition 6.3.7** | Adjoint Functor Theorem for Ordered Sets | [`proposition_6_3_7_oaft_galoisConnection`](BasicCategoryTheory/Chapter6_AdjointsRepresentablesAndLimits/InteractionsBetweenAdjointFunctorsAndLimits.lean) | ✅ Verified |
+| **Theorem 6.3.10** | General Adjoint Functor Theorem (GAFT) | [`theorem_6_3_10_gaft_backward`](BasicCategoryTheory/Chapter6_AdjointsRepresentablesAndLimits/InteractionsBetweenAdjointFunctorsAndLimits.lean) | ✅ Verified |
+| **Theorem 6.3.20** | Presheaf categories are cartesian closed | [`theorem_6_3_20_presheaf_cartesian_closed`](BasicCategoryTheory/Chapter6_AdjointsRepresentablesAndLimits/InteractionsBetweenAdjointFunctorsAndLimits.lean) | ✅ Verified |
+
 ---
 
 ## 📋 Project Progress & Detailed Plan
@@ -92,10 +97,10 @@ The formalization maps precisely to the table of contents of Tom Leinster's *Bas
   - [x] **5.1** Limits: definition and examples
   - [x] **5.2** Colimits: definition and examples
   - [x] **5.3** Interactions between functors and limits
-- [ ] **6. Adjoints, representables and limits**
+- [x] **6. Adjoints, representables and limits**
   - [x] **6.1** Limits in terms of representables and adjoints
   - [x] **6.2** Limits and colimits of presheaves
-  - [ ] **6.3** Interactions between adjoint functors and limits
+  - [x] **6.3** Interactions between adjoint functors and limits
 - [ ] **Appendix: Proof of the general adjoint functor theorem (GAFT)**
 
 ---
