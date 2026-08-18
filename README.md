@@ -7,7 +7,7 @@
 [![Mathlib 4](https://img.shields.io/badge/Mathlib_4-compatible-5C5CFF)](https://github.com/leanprover-community/mathlib4)
 [![Sorries](https://img.shields.io/badge/sorries-0-brightgreen?logo=checkmarx&logoColor=white)](https://github.com/whoiam1101/basic-category-theory-lean4)
 [![Axioms](https://img.shields.io/badge/axioms-standard_only-success)](https://github.com/whoiam1101/basic-category-theory-lean4)
-[![Progress](https://img.shields.io/badge/progress-67%25%20(4%2F6%20Chapters)-orange)](https://github.com/whoiam1101/basic-category-theory-lean4#project-progress--todo-list)
+[![Progress](https://img.shields.io/badge/progress-83%25%20(5%2F6%20Chapters)-orange)](https://github.com/whoiam1101/basic-category-theory-lean4#project-progress--todo-list)
 [![Textbook](https://img.shields.io/badge/Textbook-arXiv%3A1612.09375-B31B1B.svg)](https://arxiv.org/abs/1612.09375)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
@@ -29,14 +29,14 @@ This repository contains a comprehensive, non-commercial formalization of Tom Le
 
 <div align="center">
 
-![Progress](https://geps.dev/progress/73?dangerColor=800000&warningColor=ff8000&successColor=00aa00)
+![Progress](https://geps.dev/progress/81?dangerColor=800000&warningColor=ff8000&successColor=00aa00)
 
 | Metric | Verified Value | Details |
 | :--- | :---: | :--- |
-| 📚 **Completed Chapters** | **4 / 6** (66%) | Ch. 1–4 fully formalized + Introduction |
-| 📑 **Checklist Items Done** | **19 / 26** (73%) | Detailed section & exercise coverage |
-| 🧮 **Formal Declarations** | **354** | `160` Theorems • `17` Lemmas • `169` Defs • `8` Instances |
-| 📝 **Lean 4 Source Lines** | **5,627 LOC** | Verified across `14` modules in `BasicCategoryTheory/` |
+| 📚 **Completed Chapters** | **5 / 6** (83%) | Ch. 1–5 fully formalized + Introduction |
+| 📑 **Checklist Items Done** | **21 / 26** (81%) | Detailed section & exercise coverage |
+| 🧮 **Formal Declarations** | **383** | `168` Theorems • `17` Lemmas • `190` Defs • `8` Instances |
+| 📝 **Lean 4 Source Lines** | **6,063 LOC** | Verified across `15` modules in `BasicCategoryTheory/` |
 | 🛡️ **Incomplete Proofs (`sorry`)** | **`0`** | Zero-sorry strict kernel verification |
 | ⚖️ **Axioms Usage** | **Standard Only** | Classical logic & choice (no custom axioms) |
 | 🤖 **Automated Checks (CI)** | **Passing** | `lake build`, signed commits, secret scan & zero-sorry gates |
@@ -60,6 +60,7 @@ This repository contains a comprehensive, non-commercial formalization of Tom Le
 | **Corollary 4.3.6** | Isomorphism of representables implies isomorphism of objects | [`corollary_4_3_6`](BasicCategoryTheory/Chapter4_Representables/ConsequencesOfTheYonedaLemma.lean) | ✅ Verified |
 | **Corollary 4.3.9** | Cayley's Theorem for small categories / group actions | [`corollary_4_3_9`](BasicCategoryTheory/Chapter4_Representables/ConsequencesOfTheYonedaLemma.lean) | ✅ Verified |
 | **Lemma 5.1.35** | Monomorphisms characterized by pullback squares | [`lemma_5_1_35`](BasicCategoryTheory/Chapter5_Limits/LimitsAndExamples.lean) | ✅ Verified |
+| **Lemma 5.3.6** | Creation of limits implies preservation of limits | [`lemma_5_3_6_preservesLimits`](BasicCategoryTheory/Chapter5_Limits/InteractionsBetweenFunctorsAndLimits.lean) | ✅ Verified |
 
 ---
 
@@ -84,10 +85,10 @@ The formalization maps precisely to the table of contents of Tom Leinster's *Bas
   - [x] **4.1** Definitions and examples
   - [x] **4.2** The Yoneda lemma
   - [x] **4.3** Consequences of the Yoneda lemma
-- [ ] **5. Limits**
+- [x] **5. Limits**
   - [x] **5.1** Limits: definition and examples
   - [x] **5.2** Colimits: definition and examples
-  - [ ] **5.3** Interactions between functors and limits
+  - [x] **5.3** Interactions between functors and limits
 - [ ] **6. Adjoints, representables and limits**
   - [ ] **6.1** Limits in terms of representables and adjoints
   - [ ] **6.2** Limits and colimits of presheaves
