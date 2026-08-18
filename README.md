@@ -36,7 +36,7 @@ This repository contains a comprehensive, non-commercial formalization of Tom Le
 | 📚 **Completed Chapters** | **4 / 6** (66%) | Ch. 1–4 fully formalized + Introduction |
 | 📑 **Checklist Items Done** | **19 / 26** (73%) | Detailed section & exercise coverage |
 | 🧮 **Formal Declarations** | **354** | `160` Theorems • `17` Lemmas • `169` Defs • `8` Instances |
-| 📝 **Lean 4 Source Lines** | **5,628 LOC** | Verified across `14` modules in `BasicCategoryTheory/` |
+| 📝 **Lean 4 Source Lines** | **5,627 LOC** | Verified across `14` modules in `BasicCategoryTheory/` |
 | 🛡️ **Incomplete Proofs (`sorry`)** | **`0`** | Zero-sorry strict kernel verification |
 | ⚖️ **Axioms Usage** | **Standard Only** | Classical logic & choice (no custom axioms) |
 | 🤖 **Automated Checks (CI)** | **Passing** | `lake build`, signed commits, secret scan & zero-sorry gates |
