@@ -46,47 +46,6 @@ This repository contains a comprehensive, non-commercial formalization of Tom Le
 
 ---
 
-## 🗺️ Formalization Roadmap
-
-```mermaid
-flowchart TD
-    subgraph Completed["✅ Fully Formalized"]
-        direction TB
-        Intro["Introduction<br/><i>(Categories & Preliminaries)</i>"]
-        Ch1["Chapter 1: Categories, Functors & Natural Transformations<br/><i>(1.1 Categories • 1.2 Functors • 1.3 Nat. Trans.)</i>"]
-        Ch2["Chapter 2: Adjoints<br/><i>(2.1 Definitions • 2.2 Units/Counits • 2.3 Initial Objects)</i>"]
-        Ch3["Chapter 3: Interlude on Sets<br/><i>(3.1 Set Constructions • 3.2 Small/Large Categories)</i>"]
-        Ch4["Chapter 4: Representables<br/><i>(4.1 Representable Functors • 4.2 Yoneda Lemma • 4.3 Consequences)</i>"]
-    end
-
-    subgraph Planned["⏳ In Progress / Planned"]
-        direction TB
-        Ch5["Chapter 5: Limits & Colimits<br/><i>(5.1 Limits • 5.2 Colimits • 5.3 Functor Interactions)</i>"]
-        Ch6["Chapter 6: Adjoints, Representables and Limits<br/><i>(6.1 Limit Adjoints • 6.2 Presheaves • 6.3 Interactions)</i>"]
-        GAFT["Appendix: General Adjoint Functor Theorem (GAFT)"]
-    end
-
-    Intro --> Ch1
-    Ch1 --> Ch2
-    Ch1 --> Ch3
-    Ch2 --> Ch4
-    Ch3 --> Ch4
-    Ch4 --> Ch5
-    Ch5 --> Ch6
-    Ch6 --> GAFT
-
-    style Intro fill:#1b5e20,stroke:#4caf50,color:#fff
-    style Ch1 fill:#1b5e20,stroke:#4caf50,color:#fff
-    style Ch2 fill:#1b5e20,stroke:#4caf50,color:#fff
-    style Ch3 fill:#1b5e20,stroke:#4caf50,color:#fff
-    style Ch4 fill:#1b5e20,stroke:#4caf50,color:#fff
-    style Ch5 fill:#263238,stroke:#78909c,color:#cfd8dc
-    style Ch6 fill:#263238,stroke:#78909c,color:#cfd8dc
-    style GAFT fill:#263238,stroke:#78909c,color:#cfd8dc
-```
-
----
-
 ## 📜 Key Formalized Theorems
 
 | Textbook Reference | Mathematical Statement | Lean Declaration / File | Status |
