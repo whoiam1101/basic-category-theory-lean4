@@ -29,14 +29,14 @@ This repository contains a comprehensive, non-commercial formalization of Tom Le
 
 <div align="center">
 
-![Progress](https://geps.dev/progress/69?dangerColor=800000&warningColor=ff8000&successColor=00aa00)
+![Progress](https://geps.dev/progress/73?dangerColor=800000&warningColor=ff8000&successColor=00aa00)
 
 | Metric | Verified Value | Details |
 | :--- | :---: | :--- |
 | 📚 **Completed Chapters** | **4 / 6** (66%) | Ch. 1–4 fully formalized + Introduction |
-| 📑 **Checklist Items Done** | **18 / 26** (69%) | Detailed section & exercise coverage |
-| 🧮 **Formal Declarations** | **301** | `125` Theorems • `17` Lemmas • `151` Defs • `8` Instances |
-| 📝 **Lean 4 Source Lines** | **4,999 LOC** | Verified across `13` modules in `BasicCategoryTheory/` |
+| 📑 **Checklist Items Done** | **19 / 26** (73%) | Detailed section & exercise coverage |
+| 🧮 **Formal Declarations** | **354** | `160` Theorems • `17` Lemmas • `169` Defs • `8` Instances |
+| 📝 **Lean 4 Source Lines** | **5,628 LOC** | Verified across `14` modules in `BasicCategoryTheory/` |
 | 🛡️ **Incomplete Proofs (`sorry`)** | **`0`** | Zero-sorry strict kernel verification |
 | ⚖️ **Axioms Usage** | **Standard Only** | Classical logic & choice (no custom axioms) |
 | 🤖 **Automated Checks (CI)** | **Passing** | `lake build`, signed commits, secret scan & zero-sorry gates |
@@ -86,7 +86,7 @@ The formalization maps precisely to the table of contents of Tom Leinster's *Bas
   - [x] **4.3** Consequences of the Yoneda lemma
 - [ ] **5. Limits**
   - [x] **5.1** Limits: definition and examples
-  - [ ] **5.2** Colimits: definition and examples
+  - [x] **5.2** Colimits: definition and examples
   - [ ] **5.3** Interactions between functors and limits
 - [ ] **6. Adjoints, representables and limits**
   - [ ] **6.1** Limits in terms of representables and adjoints
