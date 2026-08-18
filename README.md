@@ -7,7 +7,7 @@
 [![Mathlib 4](https://img.shields.io/badge/Mathlib_4-compatible-5C5CFF)](https://github.com/leanprover-community/mathlib4)
 [![Sorries](https://img.shields.io/badge/sorries-0-brightgreen?logo=checkmarx&logoColor=white)](https://github.com/whoiam1101/basic-category-theory-lean4)
 [![Axioms](https://img.shields.io/badge/axioms-standard_only-success)](https://github.com/whoiam1101/basic-category-theory-lean4)
-[![Progress](https://img.shields.io/badge/progress-83%25%20(5%2F6%20Chapters)-orange)](https://github.com/whoiam1101/basic-category-theory-lean4#project-progress--todo-list)
+[![Progress](https://img.shields.io/badge/progress-100%25%20(6%2F6%20Chapters)-brightgreen)](https://github.com/whoiam1101/basic-category-theory-lean4#project-progress--todo-list)
 [![Textbook](https://img.shields.io/badge/Textbook-arXiv%3A1612.09375-B31B1B.svg)](https://arxiv.org/abs/1612.09375)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
@@ -29,14 +29,14 @@ This repository contains a comprehensive, non-commercial formalization of Tom Le
 
 <div align="center">
 
-![Progress](https://geps.dev/progress/96?dangerColor=800000&warningColor=ff8000&successColor=00aa00)
+![Progress](https://geps.dev/progress/100?dangerColor=800000&warningColor=ff8000&successColor=00aa00)
 
 | Metric | Verified Value | Details |
 | :--- | :---: | :--- |
 | 📚 **Completed Chapters** | **6 / 6** (100%) | Ch. 1–6 fully formalized + Introduction |
-| 📑 **Checklist Items Done** | **25 / 26** (96%) | Detailed section & exercise coverage |
-| 🧮 **Formal Declarations** | **456** | `190` Theorems • `18` Lemmas • `236` Defs • `12` Instances |
-| 📝 **Lean 4 Source Lines** | **7,251 LOC** | Verified across `18` modules in `BasicCategoryTheory/` |
+| 📑 **Checklist Items Done** | **26 / 26** (100%) | Detailed section & exercise coverage |
+| 🧮 **Formal Declarations** | **478** | `201` Theorems • `18` Lemmas • `244` Defs • `15` Instances |
+| 📝 **Lean 4 Source Lines** | **7,550 LOC** | Verified across `19` modules in `BasicCategoryTheory/` |
 | 🛡️ **Incomplete Proofs (`sorry`)** | **`0`** | Zero-sorry strict kernel verification |
 | ⚖️ **Axioms Usage** | **Standard Only** | Classical logic & choice (no custom axioms) |
 | 🤖 **Automated Checks (CI)** | **Passing** | `lake build`, signed commits, secret scan & zero-sorry gates |
@@ -69,6 +69,7 @@ This repository contains a comprehensive, non-commercial formalization of Tom Le
 | **Proposition 6.3.7** | Adjoint Functor Theorem for Ordered Sets | [`proposition_6_3_7_oaft_galoisConnection`](BasicCategoryTheory/Chapter6_AdjointsRepresentablesAndLimits/InteractionsBetweenAdjointFunctorsAndLimits.lean) | ✅ Verified |
 | **Theorem 6.3.10** | General Adjoint Functor Theorem (GAFT) | [`theorem_6_3_10_gaft_backward`](BasicCategoryTheory/Chapter6_AdjointsRepresentablesAndLimits/InteractionsBetweenAdjointFunctorsAndLimits.lean) | ✅ Verified |
 | **Theorem 6.3.20** | Presheaf categories are cartesian closed | [`theorem_6_3_20_presheaf_cartesian_closed`](BasicCategoryTheory/Chapter6_AdjointsRepresentablesAndLimits/InteractionsBetweenAdjointFunctorsAndLimits.lean) | ✅ Verified |
+| **Lemma A.1** | Complete category with weakly initial set has initial object | [`lemma_A_1_isInitial_of_isLimit`](BasicCategoryTheory/Appendix_ProofOfTheGeneralAdjointFunctorTheorem.lean) | ✅ Verified |
 
 ---
 
@@ -101,7 +102,7 @@ The formalization maps precisely to the table of contents of Tom Leinster's *Bas
   - [x] **6.1** Limits in terms of representables and adjoints
   - [x] **6.2** Limits and colimits of presheaves
   - [x] **6.3** Interactions between adjoint functors and limits
-- [ ] **Appendix: Proof of the general adjoint functor theorem (GAFT)**
+- [x] **Appendix: Proof of the general adjoint functor theorem (GAFT)**
 
 ---
 
