@@ -252,7 +252,7 @@ def example_1_3_7_2 {B : Type u} [Category.{u} B] :
       map := fun f =>
         { app := fun i => match i with
             | Discrete.mk ⟨0, _⟩ => f.1
-            | Discrete.mk ⟨n+1, _⟩ => f.2
+            | Discrete.mk ⟨_+1, _⟩ => f.2,
           naturality := by
             intro i j g
             rcases g with ⟨⟨h⟩⟩
@@ -260,7 +260,8 @@ def example_1_3_7_2 {B : Type u} [Category.{u} B] :
             | mk ias =>
               cases j with
               | mk jas =>
-                fin_cases ias <;> fin_cases jas <;> (try cases h) <;> simp },
+                cases h
+                fin_cases ias <;> simp },
       map_id := by
         intro P
         apply NatTrans.ext

@@ -306,39 +306,22 @@ def exercise_4_1_6_equiv (C : Cat.{0, 0}) :
         | .zero, .one, .one, .arr, .id .one => (Category.comp_id _).symm
         | .one, .one, .one, .id .one, .id .one => (Category.id_comp _).symm }
   left_inv := fun F => by
+    letI : Category C := C.str
     apply Cat.ext
-    fapply CategoryTheory.Functor.ext
-    · intro
-      | .zero => rfl
-      | .one => rfl
-    · intro A B h
-      match A, B, h with
-      | .zero, .zero, .id .zero =>
-        dsimp
-        letI : Category C := C.str
-        have : 𝟙 (F.toFunctor.obj .zero) ≫ F.toFunctor.map (WalkingArrowHom.id .zero) ≫
-            𝟙 (F.toFunctor.obj .zero) = F.toFunctor.map (WalkingArrowHom.id .zero) := by
-          rw [Category.comp_id, Category.id_comp]
-        change 𝟙 _ = _
-        rw [this]
-        exact (F.toFunctor.map_id .zero).symm
-      | .one, .one, .id .one =>
-        dsimp
-        letI : Category C := C.str
-        have : 𝟙 (F.toFunctor.obj .one) ≫ F.toFunctor.map (WalkingArrowHom.id .one) ≫
-            𝟙 (F.toFunctor.obj .one) = F.toFunctor.map (WalkingArrowHom.id .one) := by
-          rw [Category.comp_id, Category.id_comp]
-        change 𝟙 _ = _
-        rw [this]
-        exact (F.toFunctor.map_id .one).symm
-      | .zero, .one, .arr =>
-        dsimp
-        letI : Category C := C.str
-        have : 𝟙 (F.toFunctor.obj .zero) ≫ F.toFunctor.map WalkingArrowHom.arr ≫
-            𝟙 (F.toFunctor.obj .one) = F.toFunctor.map WalkingArrowHom.arr := by
-          rw [Category.comp_id, Category.id_comp]
-        change _ = 𝟙 _ ≫ _ ≫ 𝟙 _
-        rw [this]
+    refine CategoryTheory.Functor.ext (fun | .zero => rfl | .one => rfl) ?_
+    intro A B h
+    match A, B, h with
+    | .zero, .zero, .id .zero =>
+      dsimp
+      rw [Category.comp_id, Category.id_comp]
+      exact (F.toFunctor.map_id .zero).symm
+    | .one, .one, .id .one =>
+      dsimp
+      rw [Category.comp_id, Category.id_comp]
+      exact (F.toFunctor.map_id .one).symm
+    | .zero, .one, .arr =>
+      dsimp
+      rw [Category.comp_id, Category.id_comp]
   right_inv := fun ⟨X, Y, f⟩ => rfl
 
 def exercise_4_1_6 :

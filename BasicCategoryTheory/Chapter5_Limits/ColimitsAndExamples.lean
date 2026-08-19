@@ -347,32 +347,18 @@ theorem exercise_5_2_25_monoid {M : Type u} [AddMonoid M] (g g' : ℤ →+ M)
   cases z with
   | ofNat n => exact h n
   | negSucc n =>
+    have h_cancel : (n + 1 : ℤ) + Int.negSucc n = 0 := add_neg_cancel (n + 1 : ℤ)
+    have h_cancel' : Int.negSucc n + (n + 1 : ℤ) = 0 := by
+      change -(n + 1 : ℤ) + (n + 1 : ℤ) = 0
+      exact neg_add_cancel (n + 1 : ℤ)
     have h1 : g (n + 1 : ℤ) + g (Int.negSucc n) = 0 := by
-      rw [← map_add]
-      have : (n + 1 : ℤ) + Int.negSucc n = 0 := by
-        change (n + 1 : ℤ) + -(n + 1 : ℤ) = 0
-        exact add_neg_cancel (n + 1 : ℤ)
-      rw [this, map_zero]
+      rw [← map_add, h_cancel, map_zero]
     have h2 : g (Int.negSucc n) + g (n + 1 : ℤ) = 0 := by
-      rw [← map_add]
-      have : Int.negSucc n + (n + 1 : ℤ) = 0 := by
-        change -(n + 1 : ℤ) + (n + 1 : ℤ) = 0
-        exact neg_add_cancel (n + 1 : ℤ)
-      rw [this, map_zero]
+      rw [← map_add, h_cancel', map_zero]
     have h1' : g' (n + 1 : ℤ) + g' (Int.negSucc n) = 0 := by
-      rw [← map_add]
-      have : (n + 1 : ℤ) + Int.negSucc n = 0 := by
-        change (n + 1 : ℤ) + -(n + 1 : ℤ) = 0
-        exact add_neg_cancel (n + 1 : ℤ)
-      rw [this, map_zero]
+      rw [← map_add, h_cancel, map_zero]
     have h_eq : g (n + 1 : ℤ) = g' (n + 1 : ℤ) := h (n + 1)
-    calc
-      g (Int.negSucc n) = g (Int.negSucc n) + 0 := by rw [add_zero]
-      _ = g (Int.negSucc n) + (g' (n + 1 : ℤ) + g' (Int.negSucc n)) := by rw [h1']
-      _ = g (Int.negSucc n) + (g (n + 1 : ℤ) + g' (Int.negSucc n)) := by rw [h_eq]
-      _ = (g (Int.negSucc n) + g (n + 1 : ℤ)) + g' (Int.negSucc n) := by rw [add_assoc]
-      _ = 0 + g' (Int.negSucc n) := by rw [h2]
-      _ = g' (Int.negSucc n) := by rw [zero_add]
+    rw [← add_zero (g (Int.negSucc n)), ← h1', ← h_eq, ← add_assoc, h2, zero_add]
 
 theorem exercise_5_2_25_monoid_not_surj : ¬ Function.Surjective (fun (n : ℕ) => (n : ℤ)) := by
   intro hsurj
@@ -554,49 +540,30 @@ theorem exercise_5_2_28c_grp_not_all_split :
     intro y
     have hy : Multiplicative.toAdd y = (0 : ZMod 2) ∨ Multiplicative.toAdd y = (1 : ZMod 2) := by
       generalize Multiplicative.toAdd y = z
-      fin_cases z
-      · exact Or.inl rfl
-      · exact Or.inr rfl
+      fin_cases z <;> [exact Or.inl rfl; exact Or.inr rfl]
     rcases hy with h | h
-    · refine ⟨Multiplicative.ofAdd (0 : ℤ), ?_⟩
-      change Multiplicative.ofAdd ((0 : ℤ) : ZMod 2) = y
-      rw [Int.cast_zero, ← h]
-      rfl
-    · refine ⟨Multiplicative.ofAdd (1 : ℤ), ?_⟩
-      change Multiplicative.ofAdd ((1 : ℤ) : ZMod 2) = y
-      rw [Int.cast_one, ← h]
-      rfl
+    · exact ⟨Multiplicative.ofAdd (0 : ℤ), congrArg Multiplicative.ofAdd h.symm⟩
+    · exact ⟨Multiplicative.ofAdd (1 : ℤ), congrArg Multiplicative.ofAdd h.symm⟩
   have hsplit : IsSplitEpi f := hall f hepi
   have hw := ConcreteCategory.congr_hom (IsSplitEpi.id f) (Multiplicative.ofAdd (1 : ZMod 2))
-  dsimp [f] at hw
-  have h_two : (Multiplicative.ofAdd (1 : ZMod 2)) * (Multiplicative.ofAdd (1 : ZMod 2)) = 1 := rfl
   have h_hom_two : (section_ f).hom
-      ((Multiplicative.ofAdd (1 : ZMod 2)) * (Multiplicative.ofAdd (1 : ZMod 2))) = 1 := by
-    rw [h_two, map_one]
+      (Multiplicative.ofAdd (1 : ZMod 2) * Multiplicative.ofAdd 1) = 1 := by
+    rw [show Multiplicative.ofAdd (1 : ZMod 2) * Multiplicative.ofAdd 1 = 1 from rfl, map_one]
   rw [map_mul] at h_hom_two
-  have hk_def : ∃ (k : ℤ),
-      (section_ f).hom (Multiplicative.ofAdd (1 : ZMod 2)) = Multiplicative.ofAdd k :=
-    ⟨Multiplicative.toAdd ((section_ f).hom (Multiplicative.ofAdd (1 : ZMod 2))), rfl⟩
-  rcases hk_def with ⟨k, hk⟩
+  let k : ℤ := Multiplicative.toAdd ((section_ f).hom (Multiplicative.ofAdd (1 : ZMod 2)))
   have h_add : Multiplicative.ofAdd (k + k) = (1 : Multiplicative ℤ) := by
-    calc
-      Multiplicative.ofAdd (k + k) = Multiplicative.ofAdd k * Multiplicative.ofAdd k :=
-        ofAdd_add k k
-      _ = (section_ f).hom (Multiplicative.ofAdd (1 : ZMod 2)) *
-          (section_ f).hom (Multiplicative.ofAdd (1 : ZMod 2)) := by rw [hk]
-      _ = 1 := h_hom_two
+    rw [ofAdd_add]
+    exact h_hom_two
   have hk_zero : k + k = 0 := Multiplicative.ofAdd.injective h_add
-  have h_mul : 2 * k = 0 := by rw [two_mul, hk_zero]
-  have hk0 : k = 0 := mul_left_cancel₀ (by decide : (2 : ℤ) ≠ 0) (h_mul.trans (mul_zero 2).symm)
-  have h_one : (section_ f).hom (Multiplicative.ofAdd (1 : ZMod 2)) = 1 := by
-    rw [hk, hk0]
-    rfl
+  have hk0 : k = 0 := by
+    have h_two : (2 : ℤ) * k = 0 := by linarith
+    exact mul_left_cancel₀ (by decide) (h_two.trans (mul_zero 2).symm)
+  have h_one : (section_ f).hom (Multiplicative.ofAdd (1 : ZMod 2)) = 1 :=
+    Multiplicative.ext hk0
   have hw_app : zmod2_proj ((section_ f).hom (Multiplicative.ofAdd (1 : ZMod 2))) =
       Multiplicative.ofAdd (1 : ZMod 2) := hw
   rw [h_one, map_one] at hw_app
-  have : (0 : ZMod 2) = 1 := congrArg Multiplicative.toAdd hw_app
-  revert this
-  decide
+  exact (by decide : (0 : ZMod 2) ≠ 1) (congrArg Multiplicative.toAdd hw_app)
 
 theorem exercise_5_2_29_comp_mono {C : Type u} [Category.{v} C] {X Y Z : C}
     (f : X ⟶ Y) (g : Y ⟶ Z) [Mono f] [Mono g] : Mono (f ≫ g) :=

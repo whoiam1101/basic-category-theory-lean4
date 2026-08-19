@@ -246,7 +246,6 @@ lemma exercise_1_2_24_center_s3 : Subgroup.center (Equiv.Perm (Fin 3)) = ⊥ := 
   apply le_antisymm
   · intro x hx
     have hx' : ∀ y : Equiv.Perm (Fin 3), y * x = x * y := Subgroup.mem_center_iff.mp hx
-    let τ : Equiv.Perm (Fin 3) := Equiv.swap (0 : Fin 3) 1 * Equiv.swap (1 : Fin 3) 2
     let t : Equiv.Perm (Fin 3) := Equiv.swap (0 : Fin 3) 1
     let s : Equiv.Perm (Fin 3) := Equiv.swap (1 : Fin 3) 2
     have ht : x * t = t * x := (hx' t).symm
@@ -254,28 +253,40 @@ lemma exercise_1_2_24_center_s3 : Subgroup.center (Equiv.Perm (Fin 3)) = ⊥ := 
     apply Subgroup.mem_bot.mpr
     have hx1_of : x 1 = t (x 0) := by
       have h := congrArg (fun f : Equiv.Perm (Fin 3) => f 0) ht
-      simpa [t] using h
+      dsimp [t] at h
+      exact h
     have hx2_of : x 2 = s (x 1) := by
       have h := congrArg (fun f : Equiv.Perm (Fin 3) => f 1) hs
-      simpa [s] using h
+      dsimp [s] at h
+      exact h
     have hx0_cases : (x 0).val = 0 ∨ (x 0).val = 1 ∨ (x 0).val = 2 := by
       have hlt : (x 0).val < 3 := (x 0).isLt
       interval_cases (x 0).val <;> simp
     rcases hx0_cases with h0 | h1 | h2
     · have hx0 : x 0 = 0 := Fin.ext h0
-      have hx1 : x 1 = 1 := by simpa [hx0, t] using hx1_of
-      have hx2 : x 2 = 2 := by simpa [hx1, s] using hx2_of
+      have hx1 : x 1 = 1 := by
+        rw [hx1_of, hx0]
+        rfl
+      have hx2 : x 2 = 2 := by
+        rw [hx2_of, hx1]
+        rfl
       ext i
       fin_cases i <;> simp [hx0, hx1, hx2]
     · have hx0 : x 0 = 1 := Fin.ext h1
-      have hx1 : x 1 = 0 := by simpa [hx0, t] using hx1_of
-      have hx2 : x 2 = 0 := by simpa [hx1, s] using hx2_of
+      have hx1 : x 1 = 0 := by
+        rw [hx1_of, hx0]
+        rfl
+      have hx2 : x 2 = 0 := by
+        rw [hx2_of, hx1]
+        rfl
       exfalso
-      exact (by decide : (1 : Fin 3) ≠ 2) (x.injective (by simp [hx1, hx2]))
+      exact (by decide : (1 : Fin 3) ≠ 2) (x.injective (hx1.trans hx2.symm))
     · have hx0 : x 0 = 2 := Fin.ext h2
-      have hx1 : x 1 = 2 := by simpa [hx0, t] using hx1_of
+      have hx1 : x 1 = 2 := by
+        rw [hx1_of, hx0]
+        rfl
       exfalso
-      exact (by decide : (0 : Fin 3) ≠ 1) (x.injective (by simp [hx0, hx1]))
+      exact (by decide : (0 : Fin 3) ≠ 1) (x.injective (hx0.trans hx1.symm))
   · exact bot_le
 
 lemma exercise_1_2_24_center_ulift_bot (G : Type) [Group G]
@@ -341,13 +352,7 @@ theorem exercise_1_2_24 :
     have hx' : φ.inv.hom (φ.hom x) = 1 := by
       rw [hx1]
       exact φ.inv.hom.map_one
-    have hx'' : x = φ.inv.hom (φ.hom x) := by
-      have h : (φ.hom ≫ φ.inv : F.obj S₃ → F.obj S₃) =
-          (𝟙 (F.obj S₃) : F.obj S₃ → F.obj S₃) := by
-        exact congrArg (fun g : F.obj S₃ ⟶ F.obj S₃ => (g : F.obj S₃ → F.obj S₃))
-          φ.hom_inv_id
-      have hx : (φ.hom ≫ φ.inv) x = x := congrFun h x
-      exact hx.symm
+    have hx'' : x = φ.inv.hom (φ.hom x) := (ConcreteCategory.congr_hom φ.hom_inv_id x).symm
     exact hx''.trans hx'
   let p₀ : Equiv.Perm (Fin 3) →* Multiplicative (ZMod 2) := exercise_1_2_24_sign
   let t₀ : Multiplicative (ZMod 2) →* Equiv.Perm (Fin 3) := exercise_1_2_24_embed
@@ -406,25 +411,12 @@ theorem exercise_1_2_24 :
     refine ⟨φ.inv.hom w, ?_⟩
     intro hz
     apply hw_ne
-    calc
-      w = φ.hom.hom (φ.inv.hom w) := by
-        have h : (φ.inv ≫ φ.hom : ↥(Subgroup.center ↑C₂) → ↥(Subgroup.center ↑C₂)) =
-            (𝟙 (GrpCat.of ↥(Subgroup.center ↑C₂)) :
-              ↥(Subgroup.center ↑C₂) → ↥(Subgroup.center ↑C₂)) := by
-          exact congrArg
-            (fun g : GrpCat.of ↥(Subgroup.center ↑C₂) ⟶
-                GrpCat.of ↥(Subgroup.center ↑C₂) =>
-              (g : ↥(Subgroup.center ↑C₂) → ↥(Subgroup.center ↑C₂))) φ.inv_hom_id
-        have hw : (φ.inv ≫ φ.hom) w = w := congrFun h w
-        exact hw.symm
-      _ = φ.hom.hom 1 := by rw [hz]
-      _ = 1 := φ.hom.hom.map_one
+    have hw_eq : w = φ.hom.hom (φ.inv.hom w) := (ConcreteCategory.congr_hom φ.inv_hom_id w).symm
+    rw [hw_eq, hz, map_one]
   rcases hnontriv with ⟨z, hz⟩
   have hz1 : z = 1 := by
-    have h : (F.map (GrpCat.ofHom t) ≫ F.map (GrpCat.ofHom p) : F.obj C₂ → F.obj C₂) =
-        (𝟙 (F.obj C₂) : F.obj C₂ → F.obj C₂) := by
-      simpa using congrArg (fun g : F.obj C₂ ⟶ F.obj C₂ => (g : F.obj C₂ → F.obj C₂)) htp_id
-    have hz' : (F.map (GrpCat.ofHom t) ≫ F.map (GrpCat.ofHom p)) z = z := congrFun h z
+    have hz' : (F.map (GrpCat.ofHom t) ≫ F.map (GrpCat.ofHom p)) z = z := by
+      simpa using (ConcreteCategory.congr_hom htp_id z)
     exact hz'.symm.trans (htp_triv z)
   exact hz hz1
 

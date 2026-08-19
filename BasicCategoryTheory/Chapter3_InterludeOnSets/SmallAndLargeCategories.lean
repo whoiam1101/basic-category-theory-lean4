@@ -64,64 +64,8 @@ theorem exercise_3_2_12b {A B : Type u} (f : A → B) (g : B → A) :
 
 theorem exercise_3_2_12c {A B : Type u} (f : A → B) (g : B → A)
     (hf : Function.Injective f) (hg : Function.Injective g) : Nonempty (A ≃ B) := by
-  classical
-  rcases exercise_3_2_12b f g with ⟨S, hS⟩
-  have h_wit (a : A) (ha : a ∉ S) : ∃ b : B, b ∉ f '' S ∧ g b = a := by
-    have : a ∈ g '' (Set.univ \ f '' S) := by
-      rw [hS]
-      exact (Set.mem_compl_iff S a).mpr ha
-    simpa [Set.mem_image, Set.mem_diff] using this
-  let h : A → B := fun a => if ha : a ∈ S then f a else Classical.choose (h_wit a ha)
-  have h_spec (a : A) (ha : a ∉ S) : h a ∉ f '' S ∧ g (h a) = a := by
-    dsimp [h]
-    rw [dif_neg ha]
-    exact Classical.choose_spec (h_wit a ha)
-  have h_inj : Function.Injective h := by
-    intro a a' hh
-    by_cases ha : a ∈ S
-    · by_cases ha' : a' ∈ S
-      · exact hf (by simpa [h, ha, ha'] using hh)
-      · exfalso
-        have h_in : h a ∈ f '' S := by
-          dsimp [h]
-          rw [dif_pos ha]
-          exact Set.mem_image_of_mem f ha
-        have h_out : h a ∉ f '' S := by
-          simpa [hh] using (h_spec a' ha').1
-        exact h_out h_in
-    · by_cases ha' : a' ∈ S
-      · exfalso
-        have h_in : h a' ∈ f '' S := by
-          dsimp [h]
-          rw [dif_pos ha']
-          exact Set.mem_image_of_mem f ha'
-        have h_out : h a' ∉ f '' S := by
-          simpa [hh] using (h_spec a ha).1
-        exact h_out h_in
-      · have hb : g (h a) = a := (h_spec a ha).2
-        have hb' : g (h a') = a' := (h_spec a' ha').2
-        rw [← hb, ← hb', hh]
-  have h_surj : Function.Surjective h := by
-    intro b
-    by_cases hb : b ∈ f '' S
-    · rcases hb with ⟨a, ha, rfl⟩
-      refine ⟨a, ?_⟩
-      dsimp [h]
-      rw [dif_pos ha]
-    · refine ⟨g b, ?_⟩
-      have hb' : b ∈ Set.univ \ f '' S := ⟨Set.mem_univ b, hb⟩
-      have hgS : g b ∉ S := by
-        have : g b ∈ Sᶜ := by
-          rw [← hS]
-          exact Set.mem_image_of_mem g hb'
-        exact (Set.mem_compl_iff S (g b)).mp this
-      have hc : g (h (g b)) = g b := (h_spec (g b) hgS).2
-      dsimp [h] at hc
-      rw [dif_neg hgS] at hc
-      dsimp [h]
-      rw [dif_neg hgS]
-      exact hg hc
-  exact ⟨Equiv.ofBijective h ⟨h_inj, h_surj⟩⟩
+  obtain ⟨h, hbij⟩ := Function.Embedding.schroeder_bernstein hf hg
+  exact ⟨Equiv.ofBijective h hbij⟩
 
 theorem exercise_3_2_13a {A : Type u} (f : A → Set A) : ¬ Function.Surjective f :=
   Function.cantor_surjective f

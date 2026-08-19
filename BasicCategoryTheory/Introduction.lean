@@ -83,24 +83,19 @@ theorem lemma_0_7
     (h : IsUniversalBilinearMap k U V T b)
     (h' : IsUniversalBilinearMap k U V T' b') :
     ∃! j : T ≃ₗ[k] T', ∀ u v, j (b u v) = b' u v := by
-  let φ := Classical.choose <| h T' b'
-  have hφ := Classical.choose_spec <| h T' b'
-  let ψ := Classical.choose <| h' T b
-  have hψ := Classical.choose_spec <| h' T b
+  obtain ⟨φ, hφ, hφ_uniq⟩ := h T' b'
+  obtain ⟨ψ, hψ, hψ_uniq⟩ := h' T b
+  obtain ⟨_, _, hφψ_uniq⟩ := h' T' b'
+  obtain ⟨_, _, hψφ_uniq⟩ := h T b
   have h₁ : φ ∘ₗ ψ = LinearMap.id :=
-    have huniq := (Classical.choose_spec (h' T' b')).2
-    (huniq (φ.comp ψ) fun u v => (congr_arg φ (hψ.1 u v)).trans (hφ.1 u v)).trans
-      (huniq LinearMap.id fun _ _ => rfl).symm
+    (hφψ_uniq (φ.comp ψ) fun u v => (congr_arg φ (hψ u v)).trans (hφ u v)).trans
+      (hφψ_uniq LinearMap.id fun _ _ => rfl).symm
   have h₂ : ψ ∘ₗ φ = LinearMap.id :=
-    have huniq := (Classical.choose_spec (h T b)).2
-    (huniq (ψ.comp φ) fun u v => (congr_arg ψ (hφ.1 u v)).trans (hψ.1 u v)).trans
-      (huniq LinearMap.id fun _ _ => rfl).symm
-  refine ⟨LinearEquiv.ofLinear φ ψ h₁ h₂, ?_, ?_⟩
-  · intro u v
-    simpa using hφ.1 u v
-  · intro j hj
-    have h_j_lin : (j : T →ₗ[k] T') = φ := (Classical.choose_spec (h T' b')).2 j hj
-    exact LinearEquiv.ext fun x => congrArg (fun (f : T →ₗ[k] T') => f x) h_j_lin
+    (hψφ_uniq (ψ.comp φ) fun u v => (congr_arg ψ (hφ u v)).trans (hψ u v)).trans
+      (hψφ_uniq LinearMap.id fun _ _ => rfl).symm
+  refine ⟨LinearEquiv.ofLinear φ ψ h₁ h₂, hφ, fun j hj => ?_⟩
+  have h_j_lin : (j : T →ₗ[k] T') = φ := hφ_uniq j hj
+  exact LinearEquiv.ext fun x => congrArg (fun (f : T →ₗ[k] T') => f x) h_j_lin
 
 theorem example_0_8 {G H : Type*} [Group G] [Group H] (θ : G →* H) :
     let ι : θ.ker →* G := θ.ker.subtype

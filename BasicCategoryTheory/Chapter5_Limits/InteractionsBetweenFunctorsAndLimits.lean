@@ -104,30 +104,23 @@ theorem example_5_3_3_grp_not_preserves_initial :
 theorem example_5_3_3_not_preserves_colimits_grp :
     ¬ PreservesColimits (forget GrpCat.{0}) := by
   intro h
-  have h_empty_cocone : IsColimit (asEmptyCocone (⊥_ GrpCat.{0})) := initialIsInitial
-  have h_map :
-      IsColimit ((forget GrpCat.{0}).mapCocone (asEmptyCocone (⊥_ GrpCat.{0}))) :=
-    isColimitOfPreserves (forget GrpCat.{0}) h_empty_cocone
+  have h_map : IsColimit ((forget GrpCat.{0}).mapCocone (asEmptyCocone (⊥_ GrpCat.{0}))) :=
+    isColimitOfPreserves (forget GrpCat.{0}) initialIsInitial
   let c_empty : Cocone (Functor.empty GrpCat.{0} ⋙ forget GrpCat.{0}) :=
-    { pt := PEmpty, ι := { app := fun x => PEmpty.elim x.as } }
-  let f : (forget GrpCat).obj (⊥_ GrpCat.{0}) ⟶ PEmpty := h_map.desc c_empty
-  exact (f (1 : (forget GrpCat).obj (⊥_ GrpCat.{0}))).elim
+    { pt := PEmpty,
+      ι := { app := fun x => PEmpty.elim x.as, naturality := fun x _ _ => PEmpty.elim x.as } }
+  exact (h_map.desc c_empty (1 : (forget GrpCat).obj (⊥_ GrpCat.{0}))).elim
 
 theorem example_5_3_3_not_preserves_colimits_mod :
     ¬ PreservesColimits (forget (ModuleCat.{0} ℤ)) := by
   intro h
-  have h_empty_cocone :
-      IsColimit (asEmptyCocone (⊥_ (ModuleCat.{0} ℤ))) := initialIsInitial
-  have h_map :
-      IsColimit ((forget (ModuleCat.{0} ℤ)).mapCocone
-        (asEmptyCocone (⊥_ (ModuleCat.{0} ℤ)))) :=
-    isColimitOfPreserves (forget (ModuleCat.{0} ℤ)) h_empty_cocone
-  let c_empty :
-      Cocone (Functor.empty (ModuleCat.{0} ℤ) ⋙ forget (ModuleCat.{0} ℤ)) :=
-    { pt := PEmpty, ι := { app := fun x => PEmpty.elim x.as } }
-  let f : (forget (ModuleCat.{0} ℤ)).obj (⊥_ (ModuleCat.{0} ℤ)) ⟶ PEmpty :=
-    h_map.desc c_empty
-  exact (f (0 : (forget (ModuleCat.{0} ℤ)).obj (⊥_ (ModuleCat.{0} ℤ)))).elim
+  have h_map : IsColimit ((forget (ModuleCat.{0} ℤ)).mapCocone
+      (asEmptyCocone (⊥_ (ModuleCat.{0} ℤ)))) :=
+    isColimitOfPreserves (forget (ModuleCat.{0} ℤ)) initialIsInitial
+  let c_empty : Cocone (Functor.empty (ModuleCat.{0} ℤ) ⋙ forget (ModuleCat.{0} ℤ)) :=
+    { pt := PEmpty,
+      ι := { app := fun x => PEmpty.elim x.as, naturality := fun x _ _ => PEmpty.elim x.as } }
+  exact (h_map.desc c_empty (0 : (forget (ModuleCat.{0} ℤ)).obj (⊥_ (ModuleCat.{0} ℤ)))).elim
 
 theorem example_5_3_4_unique_group_structure {G₁ G₂ : Type u} [Group G₁] [Group G₂]
     (G : Group (G₁ × G₂))
